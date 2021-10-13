@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Mini_HR_app.Data;
 
 namespace Mini_HR_app.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211013124143_UpdateRelationships")]
+    partial class UpdateRelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,18 +59,26 @@ namespace Mini_HR_app.Migrations
 
             modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
                 {
-                    b.Property<int>("CompanyId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Active")
-                        .HasColumnType("bit");
+                    b.HasKey("Id");
 
-                    b.HasKey("CompanyId", "PersonId");
+                    b.HasIndex("CompanyId");
 
-                    b.HasIndex("PersonId");
+                    b.HasIndex("PersonId")
+                        .IsUnique();
 
                     b.ToTable("Employees");
                 });
@@ -102,19 +112,15 @@ namespace Mini_HR_app.Migrations
 
             modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
                 {
-                    b.HasOne("Mini_HR_app.Models.Company", "Company")
+                    b.HasOne("Mini_HR_app.Models.Company", null)
                         .WithMany("Employees")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CompanyId");
 
                     b.HasOne("Mini_HR_app.Models.Person", "Person")
-                        .WithMany("Employees")
-                        .HasForeignKey("PersonId")
+                        .WithOne("Employee")
+                        .HasForeignKey("Mini_HR_app.Models.Employee", "PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Company");
 
                     b.Navigation("Person");
                 });
@@ -126,7 +132,7 @@ namespace Mini_HR_app.Migrations
 
             modelBuilder.Entity("Mini_HR_app.Models.Person", b =>
                 {
-                    b.Navigation("Employees");
+                    b.Navigation("Employee");
                 });
 #pragma warning restore 612, 618
         }

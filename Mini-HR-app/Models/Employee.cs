@@ -7,9 +7,8 @@ namespace Mini_HR_app.Models
 {
     public class Employee
     {
-        public int Id { get; set; }
         public Company Company { get; set; }
-        public int PersonId { get; set; }
         public Person Person { get; set; }
+        public bool Active { get; set; }
     }
 }

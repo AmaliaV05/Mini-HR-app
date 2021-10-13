@@ -7,7 +7,7 @@ namespace Mini_HR_app.ViewModels
 {
     public class EmployeeWithDetailsViewModel
     {
-        public int Id { get; set; }
+        public bool Active { get; set; }
         public PersonViewModel Person { get; set; }
     }
 }
