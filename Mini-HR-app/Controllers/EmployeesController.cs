@@ -30,12 +30,13 @@ namespace Mini_HR_app.Controllers
         /// </summary>
         /// <returns>List of employees</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmployeeWithDetailsViewModel>>> GetEmployee()
+        public async Task<ActionResult<IEnumerable<CompanyWithEmployeesViewModel>>> GetEmployee()
         {
-            return await _context.Employee
-                .Include(e => e.Person)
-                .Select(e => _mapper.Map<EmployeeWithDetailsViewModel>(e))
+            return await _context.Companies
+                .Include(c => c.Employees.Where(e => e.Active == true))
+                .ThenInclude(e => e.Person)
+                .Select(e => _mapper.Map<CompanyWithEmployeesViewModel>(e))
                 .ToListAsync();
-        }   
+        }
     }
 }

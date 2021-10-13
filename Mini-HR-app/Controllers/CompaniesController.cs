@@ -32,7 +32,7 @@ namespace Mini_HR_app.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CompanyViewModel>>> GetCompany()
         {
-            return await _context.Company
+            return await _context.Companies
                 .Select(c => _mapper.Map<CompanyViewModel>(c))
                 .ToListAsync();
         }
@@ -45,16 +45,18 @@ namespace Mini_HR_app.Controllers
         [HttpPost]
         public async Task<ActionResult<CompanyViewModel>> PostCompany(CompanyViewModel companyViewModel)
         {
-            var checkCompany = await _context.Company.ToListAsync();
+            var checkCompany = await _context.Companies
+                .Where(c => c.FiscalCode == companyViewModel.FiscalCode)
+                .FirstOrDefaultAsync();
 
-            if (checkCompany.Count == 1)
+            if (checkCompany != null)
             {
-                return BadRequest("Company details already exist!");
+                return BadRequest("Company details already exist");
             }
 
-            var company = _mapper.Map<Company>(companyViewModel);  
+            var company = _mapper.Map<Company>(companyViewModel);
 
-            _context.Company.Add(company);
+            _context.Companies.Add(company);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetCompany", new { id = company.Id }, company);
@@ -69,37 +71,40 @@ namespace Mini_HR_app.Controllers
         [HttpPost("{idCompany}/Employee")]
         public async Task<ActionResult> PostEmployeeForCompany(int idCompany, EmployeeWithDetailsViewModel employeeWithDetails)
         {
-            var company = await _context.Company
+            var company = await _context.Companies
                 .Where(c => c.Id == idCompany)
-                .Include(c => c.Employees)
                 .FirstOrDefaultAsync();
-            
+
             if (company == null)
             {
                 return NotFound("Company details do not exist");
             }
 
-            var personViewModel = employeeWithDetails.Person;
-
-            var person = _mapper.Map<Person>(personViewModel);
-
-            _context.Person.Add(person);
-            await _context.SaveChangesAsync();
-
-            var findPerson = _context.Person
+            var findPerson = _context.People
                 .Where(p => p.Ssn == employeeWithDetails.Person.Ssn)
-                .First();
+                .FirstOrDefault();
 
-            var employee = new Employee
+            if (findPerson == null)
             {
-                PersonId = findPerson.Id
+                var personViewModel = employeeWithDetails.Person;
+
+                var person = _mapper.Map<Person>(personViewModel);
+
+                _context.People.Add(person);
+                await _context.SaveChangesAsync();
+            }
+
+            var employee = new Employee()
+            {
+                Person = findPerson,
+                Active = true
             };
 
             company.Employees.Add(employee);
-            _context.Entry(company).State = EntityState.Modified;
+            //_context.Entry(company).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return Ok("New employee entry was added.");
+            return Ok("New employee entry was added");
         }
     }
 }
