@@ -13,6 +13,7 @@ namespace Mini_HR_app.Models
         public string Ssn { get; set; }
         public DateTime BirthDate { get; set; }
         public string BirthPlace { get; set; }
-        public Employee Employee { get; set; }
+        public ICollection<Employee> Employees { get; set; }
+        public ICollection<Company> Companies { get; set; }
     }
 }
