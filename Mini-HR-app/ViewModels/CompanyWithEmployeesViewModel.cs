@@ -3,20 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Mini_HR_app.Models
+namespace Mini_HR_app.ViewModels
 {
-    public class Company
+    public class CompanyWithEmployeesViewModel
     {
         public int Id { get; set; }
         public string CompanyName { get; set; }
         public string FiscalCode { get; set; }
         public string RegistryNo { get; set; }
-        public string Euid { get; set; }
         public DateTime DateOfEstablishment { get; set; }
         public string NaceCode { get; set; }
         public string Activity { get; set; }
-        public string ActivityDescription { get; set; }
-        public ICollection<Employee> Employees { get; set; }
-        public ICollection<Person> People { get; set; }
+        public List<EmployeeWithDetailsViewModel> Employee { get; set; }
     }
 }

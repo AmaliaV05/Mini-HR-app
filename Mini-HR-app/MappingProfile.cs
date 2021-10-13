@@ -13,6 +13,7 @@ namespace Mini_HR_app
         public MappingProfile()
         {
             CreateMap<Company, CompanyViewModel>().ReverseMap();
+            CreateMap<Company, CompanyWithEmployeesViewModel>();
             CreateMap<Employee, EmployeeWithDetailsViewModel>().ReverseMap();
             CreateMap<Person, PersonViewModel>().ReverseMap();
         }
