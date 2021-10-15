@@ -10,8 +10,8 @@ using Mini_HR_app.Data;
 namespace Mini_HR_app.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211013125725_DeleteEmployee")]
-    partial class DeleteEmployee
+    [Migration("20211014092013_AddCompanyEmployeePerson")]
+    partial class AddCompanyEmployeePerson
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,27 +21,15 @@ namespace Mini_HR_app.Migrations
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("CompanyPerson", b =>
-                {
-                    b.Property<int>("CompaniesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PeopleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CompaniesId", "PeopleId");
-
-                    b.HasIndex("PeopleId");
-
-                    b.ToTable("CompanyPerson");
-                });
-
             modelBuilder.Entity("Mini_HR_app.Models.Company", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Activity")
                         .HasColumnType("nvarchar(max)");
@@ -72,6 +60,42 @@ namespace Mini_HR_app.Migrations
                     b.ToTable("Companies");
                 });
 
+            modelBuilder.Entity("Mini_HR_app.Models.CompanyEmployee", b =>
+                {
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.HasKey("CompanyId", "EmployeeId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("CompanyEmployee");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PersonId")
+                        .IsUnique();
+
+                    b.ToTable("Employees");
+                });
+
             modelBuilder.Entity("Mini_HR_app.Models.Person", b =>
                 {
                     b.Property<int>("Id")
@@ -99,19 +123,49 @@ namespace Mini_HR_app.Migrations
                     b.ToTable("People");
                 });
 
-            modelBuilder.Entity("CompanyPerson", b =>
+            modelBuilder.Entity("Mini_HR_app.Models.CompanyEmployee", b =>
                 {
-                    b.HasOne("Mini_HR_app.Models.Company", null)
-                        .WithMany()
-                        .HasForeignKey("CompaniesId")
+                    b.HasOne("Mini_HR_app.Models.Company", "Company")
+                        .WithMany("CompanyEmployees")
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Mini_HR_app.Models.Person", null)
-                        .WithMany()
-                        .HasForeignKey("PeopleId")
+                    b.HasOne("Mini_HR_app.Models.Employee", "Employee")
+                        .WithMany("CompanyEmployees")
+                        .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
+                {
+                    b.HasOne("Mini_HR_app.Models.Person", "Person")
+                        .WithOne("Employee")
+                        .HasForeignKey("Mini_HR_app.Models.Employee", "PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.Company", b =>
+                {
+                    b.Navigation("CompanyEmployees");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
+                {
+                    b.Navigation("CompanyEmployees");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.Person", b =>
+                {
+                    b.Navigation("Employee");
                 });
 #pragma warning restore 612, 618
         }

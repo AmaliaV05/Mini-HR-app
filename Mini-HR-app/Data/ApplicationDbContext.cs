@@ -19,11 +19,11 @@ namespace Mini_HR_app.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Company>()
-                    .HasMany(x => x.People)
+                    .HasMany(x => x.Employees)
                     .WithMany(x => x.Companies)
-                    .UsingEntity<Employee>(
-                        x => x.HasOne(e => e.Person).WithMany(c => c.Employees),
-                        x => x.HasOne(e => e.Company).WithMany(p => p.Employees));
+                    .UsingEntity<CompanyEmployee>(
+                        x => x.HasOne(e => e.Employee).WithMany(c => c.CompanyEmployees),
+                        x => x.HasOne(e => e.Company).WithMany(p => p.CompanyEmployees));
         }
     }
 }
