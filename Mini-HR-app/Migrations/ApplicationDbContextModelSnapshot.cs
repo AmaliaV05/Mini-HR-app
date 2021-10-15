@@ -50,25 +50,46 @@ namespace Mini_HR_app.Migrations
                     b.Property<string>("RegistryNo")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.ToTable("Companies");
                 });
 
-            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
+            modelBuilder.Entity("Mini_HR_app.Models.CompanyEmployee", b =>
                 {
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("CompanyId", "EmployeeId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("CompanyEmployee");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Active")
-                        .HasColumnType("bit");
+                    b.HasKey("Id");
 
-                    b.HasKey("CompanyId", "PersonId");
-
-                    b.HasIndex("PersonId");
+                    b.HasIndex("PersonId")
+                        .IsUnique();
 
                     b.ToTable("Employees");
                 });
@@ -100,33 +121,49 @@ namespace Mini_HR_app.Migrations
                     b.ToTable("People");
                 });
 
-            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
+            modelBuilder.Entity("Mini_HR_app.Models.CompanyEmployee", b =>
                 {
                     b.HasOne("Mini_HR_app.Models.Company", "Company")
-                        .WithMany("Employees")
+                        .WithMany("CompanyEmployees")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Mini_HR_app.Models.Person", "Person")
-                        .WithMany("Employees")
-                        .HasForeignKey("PersonId")
+                    b.HasOne("Mini_HR_app.Models.Employee", "Employee")
+                        .WithMany("CompanyEmployees")
+                        .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Company");
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
+                {
+                    b.HasOne("Mini_HR_app.Models.Person", "Person")
+                        .WithOne("Employee")
+                        .HasForeignKey("Mini_HR_app.Models.Employee", "PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Person");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Models.Company", b =>
                 {
-                    b.Navigation("Employees");
+                    b.Navigation("CompanyEmployees");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
+                {
+                    b.Navigation("CompanyEmployees");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Models.Person", b =>
                 {
-                    b.Navigation("Employees");
+                    b.Navigation("Employee");
                 });
 #pragma warning restore 612, 618
         }
