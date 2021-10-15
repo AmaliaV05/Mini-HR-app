@@ -16,7 +16,8 @@ namespace Mini_HR_app.Models
         public string NaceCode { get; set; }
         public string Activity { get; set; }
         public string ActivityDescription { get; set; }
-        public ICollection<Employee> Employees { get; set; }
-        public ICollection<Person> People { get; set; }
+        public bool Status { get; set; }
+        public List<Employee> Employees { get; set; }
+        public List<CompanyEmployee> CompanyEmployees { get; set; }
     }
 }

@@ -75,6 +75,11 @@ namespace Mini_HR_app
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseCors(builder =>
+                    builder.AllowAnyOrigin()//nu este indicat in cazul aplicatiilor reale
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    );
             }
             else
             {
