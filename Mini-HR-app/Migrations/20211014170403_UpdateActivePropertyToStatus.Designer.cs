@@ -10,8 +10,8 @@ using Mini_HR_app.Data;
 namespace Mini_HR_app.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211012105332_AddPerson")]
-    partial class AddPerson
+    [Migration("20211014170403_UpdateActivePropertyToStatus")]
+    partial class UpdateActivePropertyToStatus
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -52,9 +52,30 @@ namespace Mini_HR_app.Migrations
                     b.Property<string>("RegistryNo")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Company");
+                    b.ToTable("Companies");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.CompanyEmployee", b =>
+                {
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("CompanyId", "EmployeeId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("CompanyEmployee");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
@@ -64,20 +85,15 @@ namespace Mini_HR_app.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CompanyId")
-                        .HasColumnType("int");
-
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId");
-
                     b.HasIndex("PersonId")
                         .IsUnique();
 
-                    b.ToTable("Employee");
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Models.Person", b =>
@@ -104,29 +120,47 @@ namespace Mini_HR_app.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Person");
+                    b.ToTable("People");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.CompanyEmployee", b =>
+                {
+                    b.HasOne("Mini_HR_app.Models.Company", "Company")
+                        .WithMany("CompanyEmployees")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Mini_HR_app.Models.Employee", "Employee")
+                        .WithMany("CompanyEmployees")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
                 {
-                    b.HasOne("Mini_HR_app.Models.Company", "Company")
-                        .WithMany("Employees")
-                        .HasForeignKey("CompanyId");
-
                     b.HasOne("Mini_HR_app.Models.Person", "Person")
                         .WithOne("Employee")
                         .HasForeignKey("Mini_HR_app.Models.Employee", "PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Company");
-
                     b.Navigation("Person");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Models.Company", b =>
                 {
-                    b.Navigation("Employees");
+                    b.Navigation("CompanyEmployees");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
+                {
+                    b.Navigation("CompanyEmployees");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Models.Person", b =>
