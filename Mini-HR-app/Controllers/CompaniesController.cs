@@ -133,6 +133,8 @@ namespace Mini_HR_app.Controllers
                 return BadRequest("Company id does not match the input id");
             }
 
+            company.Status = true;
+
             _context.Entry(company).State = EntityState.Modified;
             
             try
@@ -214,6 +216,16 @@ namespace Mini_HR_app.Controllers
                 return BadRequest("The company does not exist");
             }
 
+            var checkCompanyEmployees = await _context.Companies
+                .Where(c => c.Id == idCompany)
+                .Include(c => c.CompanyEmployees.Where(e => e.Status == true))
+                .FirstOrDefaultAsync();
+
+            if (checkCompanyEmployees != null)
+            {
+                return BadRequest("The company still has employees");
+            }
+
             company.Status = false;
 
             _context.Entry(company).Property(x => x.Status).IsModified = true;
@@ -267,10 +279,12 @@ namespace Mini_HR_app.Controllers
 
             if (checkCompany != null)
             {
-                return BadRequest("Company details already exist");
-            }
+                return BadRequest("Company already exist");
+            }            
 
             var company = _mapper.Map<Company>(companyViewModel);
+
+            company.Status = true;
 
             await _context.Companies.AddAsync(company);
             await _context.SaveChangesAsync();
@@ -282,10 +296,10 @@ namespace Mini_HR_app.Controllers
         /// Creates new employee entry
         /// </summary>
         /// <param name="idCompany"></param>
-        /// <param name="employeeWithDetails"></param>
+        /// <param name="personViewModel"></param>
         /// <returns></returns>
         [HttpPost("{idCompany}/Employee")]
-        public async Task<ActionResult> PostEmployeeForCompany(int idCompany, EmployeeWithDetailsViewModel employeeWithDetails)
+        public async Task<ActionResult> PostEmployeeForCompany(int idCompany, PersonViewModel personViewModel)
         {
             var company = await _context.Companies
                 .Where(c => c.Id == idCompany)
@@ -297,13 +311,11 @@ namespace Mini_HR_app.Controllers
             }
 
             var findPerson = _context.People
-                .Where(p => p.Ssn == employeeWithDetails.Person.Ssn)
+                .Where(p => p.Ssn == personViewModel.Ssn)
                 .FirstOrDefault();
 
             if (findPerson == null)
             {
-                var personViewModel = employeeWithDetails.Person;
-
                 var person = _mapper.Map<Person>(personViewModel);
 
                 await _context.People.AddAsync(person);
@@ -311,7 +323,7 @@ namespace Mini_HR_app.Controllers
             }            
 
             var existingPerson = _context.People
-                .Single(p => p.Ssn == employeeWithDetails.Person.Ssn);
+                .Single(p => p.Ssn == personViewModel.Ssn);
             
             var employee = new Employee
             {

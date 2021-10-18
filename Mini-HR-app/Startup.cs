@@ -21,17 +21,32 @@ namespace Mini_HR_app
             Configuration = configuration;
         }
 
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  builder =>
+                                  {
+                                      builder//WithOrigins(//"http://example.com",
+                                                          //"http://www.contoso.com",
+                                                          //"https://localhost:4200")
+                                                           .AllowAnyOrigin()
+                                                           .AllowAnyHeader()
+                                                           .AllowAnyMethod();
+                                  });
+            });
             services.AddAutoMapper(typeof(MappingProfile));
             services.AddDbContext<ApplicationDbContext>(options =>
                options.UseSqlServer(
                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddControllersWithViews();
             // In production, the Angular files will be served from this directory
+            services.AddControllersWithViews();
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
@@ -75,11 +90,6 @@ namespace Mini_HR_app
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseCors(builder =>
-                    builder.AllowAnyOrigin()//nu este indicat in cazul aplicatiilor reale
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    );
             }
             else
             {
@@ -96,6 +106,8 @@ namespace Mini_HR_app
             }
 
             app.UseRouting();
+
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseEndpoints(endpoints =>
             {
