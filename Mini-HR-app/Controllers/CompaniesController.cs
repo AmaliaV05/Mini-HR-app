@@ -124,7 +124,7 @@ namespace Mini_HR_app.Controllers
         /// <param name="companyViewModel"></param>
         /// <returns></returns>
         [HttpPut("{idCompany}")]
-        public async Task<ActionResult> EditCompanyDetails(int idCompany, CompanyViewModel companyViewModel)
+        public async Task<ActionResult> PutCompanyDetails(int idCompany, CompanyViewModel companyViewModel)
         {
             var company = _mapper.Map<Company>(companyViewModel);
 
@@ -164,7 +164,7 @@ namespace Mini_HR_app.Controllers
         /// <param name="employeeWithDetailsViewModel"></param>
         /// <returns></returns>
         [HttpPut("{idCompany}/Employee/{idEmployee}")]
-        public async Task<ActionResult> EditEmployeeDetails(int idCompany, int idEmployee, EmployeeWithDetailsViewModel employeeWithDetailsViewModel)
+        public async Task<ActionResult> PutEmployeeDetails(int idCompany, int idEmployee, EmployeeWithDetailsViewModel employeeWithDetailsViewModel)
         {
             var company = await _context.Companies
                 .Where(c => c.Id == idCompany)
