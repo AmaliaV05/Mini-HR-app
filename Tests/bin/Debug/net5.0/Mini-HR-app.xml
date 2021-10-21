@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Mini-HR-app</name>
+    </assembly>
+    <members>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.GetCompanies">
+            <summary>
+            Retrieve all companies' details
+            </summary>
+            <returns>Company details</returns>
+        </member>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.GetCompanyDetails(System.Int32)">
+            <summary>
+            Get details of a company
+            </summary>
+            <param name="idCompany"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.GetActiveEmployees(System.Int32)">
+            <summary>
+            Gets a list of active employees with personal details from a company
+            </summary>
+            <param name="idCompany"></param>
+            <returns>List of employees</returns>
+        </member>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.GetEmployeeDetails(System.Int32,System.Int32)">
+            <summary>
+            Gets the details of an employee from a company
+            </summary>
+            <param name="idCompany"></param>
+            <param name="idEmployee"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.PutCompanyDetails(System.Int32,Mini_HR_app.ViewModels.CompanyViewModel)">
+            <summary>
+            Updates company details
+            </summary>
+            <param name="idCompany"></param>
+            <param name="companyViewModel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.PutEmployeeDetails(System.Int32,System.Int32,Mini_HR_app.ViewModels.EmployeeWithDetailsViewModel)">
+            <summary>
+            Updates employee details
+            </summary>
+            <param name="idCompany"></param>
+            <param name="idEmployee"></param>
+            <param name="employeeWithDetailsViewModel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.PutCompanyStatusToInactive(System.Int32)">
+            <summary>
+            Changes the status of the company to inactive
+            </summary>
+            <param name="idCompany"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.PutEmployeeStatusToInactive(System.Int32,System.Int32)">
+            <summary>
+            Changes the status of employee to inactive, meaning the person is no longer an employee of the company
+            </summary>
+            <param name="idCompany"></param>
+            <param name="idEmployee"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.PostCompany(Mini_HR_app.ViewModels.CompanyViewModel)">
+            <summary>
+            Create company details
+            </summary>
+            <param name="companyViewModel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Mini_HR_app.Controllers.CompaniesController.PostEmployeeForCompany(System.Int32,Mini_HR_app.ViewModels.PersonViewModel)">
+            <summary>
+            Creates new employee entry
+            </summary>
+            <param name="idCompany"></param>
+            <param name="personViewModel"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
