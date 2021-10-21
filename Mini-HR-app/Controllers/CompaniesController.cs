@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +32,7 @@ namespace Mini_HR_app.Controllers
         /// </summary>
         /// <returns>Company details</returns>
         [HttpGet("Active-Status")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<CompanyViewModel>>> GetCompanies()
         {
             return await _context.Companies
@@ -63,6 +66,7 @@ namespace Mini_HR_app.Controllers
         /// <param name="idCompany"></param>
         /// <returns>List of employees</returns>
         [HttpGet("{idCompany}/Employees-Active-Status")]
+        [Authorize(Roles = "Manager")]
         public async Task<ActionResult<CompanyWithEmployeesViewModel>> GetActiveEmployees(int idCompany)
         {
             var company = await _context.Companies.FindAsync(idCompany);
@@ -205,7 +209,7 @@ namespace Mini_HR_app.Controllers
         /// <param name="idCompany"></param>
         /// <returns></returns>
         [HttpPut("{idCompany}/Change-Status-To-Inactive")]
-        public async Task<ActionResult<CompanyViewModel>> UpdateInactiveCompany(int idCompany)
+        public async Task<ActionResult<CompanyViewModel>> PutCompanyStatusToInactive(int idCompany)
         {
             var company = _context.Companies
                 .Where(c => c.Id == idCompany)
@@ -216,15 +220,18 @@ namespace Mini_HR_app.Controllers
                 return BadRequest("The company does not exist");
             }
 
-            var checkCompanyEmployees = await _context.Companies
+            /*var checkCompanyEmployees = await _context.Companies
                 .Where(c => c.Id == idCompany)
                 .Include(c => c.CompanyEmployees.Where(e => e.Status == true))
                 .FirstOrDefaultAsync();
 
+            Console.WriteLine(checkCompanyEmployees.CompanyEmployees.Count);
+            Console.WriteLine(checkCompanyEmployees);
+
             if (checkCompanyEmployees != null)
             {
                 return BadRequest("The company still has employees");
-            }
+            }*/
 
             company.Status = false;
 
@@ -241,7 +248,7 @@ namespace Mini_HR_app.Controllers
         /// <param name="idEmployee"></param>
         /// <returns></returns>
         [HttpPut("{idCompany}/Employee-Change-Status-To-Inactive/{idEmployee}")]
-        public async Task<ActionResult<CompanyWithEmployeesViewModel>> UpdateInactiveEmployee(int idCompany, int idEmployee)
+        public async Task<ActionResult<CompanyWithEmployeesViewModel>> PutEmployeeStatusToInactive(int idCompany, int idEmployee)
         {
             var company = _context.Companies
                 .Where(c => c.Id == idCompany)

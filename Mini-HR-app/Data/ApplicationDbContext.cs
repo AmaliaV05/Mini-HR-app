@@ -1,13 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Mini_HR_app.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Mini_HR_app.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -25,6 +22,9 @@ namespace Mini_HR_app.Data
                     .UsingEntity<CompanyEmployee>(
                         x => x.HasOne(e => e.Employee).WithMany(c => c.CompanyEmployees),
                         x => x.HasOne(e => e.Company).WithMany(p => p.CompanyEmployees));
+
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
         }
     }
 }
