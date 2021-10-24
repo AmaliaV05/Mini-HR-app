@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mini_HR_app.Data;
+using Mini_HR_app.Exceptions;
 using Mini_HR_app.Models;
 using Mini_HR_app.ViewModels;
 
@@ -131,6 +130,16 @@ namespace Mini_HR_app.Controllers
         public async Task<ActionResult> PutCompanyDetails(int idCompany, CompanyViewModel companyViewModel)
         {
             var company = _mapper.Map<Company>(companyViewModel);
+            
+            try
+            {
+                //_validator.ValidateCompany(company);
+                company = _mapper.Map<Company>(companyViewModel);
+            }
+            catch (InvalidCompanyException icEx)
+            {
+                Console.WriteLine(icEx.Message);
+            }
 
             if (company.Id != idCompany)
             {

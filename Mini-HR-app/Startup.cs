@@ -90,7 +90,7 @@ namespace Mini_HR_app
             });
 
             services.AddScoped<ITokenService, TokenService>();
-            services.AddTransient<IAuthManagementService, AuthManagementService>();
+            services.AddScoped<IAuthManagementService, AuthManagementService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -102,6 +102,8 @@ namespace Mini_HR_app
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Mini HR app v1"));
             }
+
+            app.UseCustomException();
 
             app.UseHttpsRedirection();
             
