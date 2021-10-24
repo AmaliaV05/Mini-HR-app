@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Mini_HR_app.Extensions
 {
-    public static class IdentityServiceExtensions
+    public static class IdentityServiceExtension
     {
         public static IServiceCollection AddIdentityService(this IServiceCollection services)
         {
