@@ -1,4 +1,4 @@
-using AutoMapper;
+/*using AutoMapper;
 using GenFu;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -35,12 +35,12 @@ namespace Tests
     {
         private readonly ApplicationDbContext _context;
 
-        /*[Fact]
+        *//*[Fact]
         public void AutoMapper_Configuration_IsValid()
         {
             var config = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>());
             config.AssertConfigurationIsValid();
-        }*/
+        }*//*
 
         [Fact]
         public async Task GetCompanies_ReturnsAnActionResult_WithAListOfCompanies()
@@ -63,7 +63,7 @@ namespace Tests
             Assert.Equal(2, model.Count());
         }
 
-        /*[Theory]
+        *//*[Theory]
         [InlineData(12)]
         [InlineData(120)]
         public async Task GetCompanyDetails_ReturnsAnActionResult_WithDetailsOfACompany(int id)
@@ -169,6 +169,7 @@ namespace Tests
             yield return new object[] { 2, new Company { CompanyName = "Mancini", FiscalCode = "RO 38514091" } };
         }
 
-    }*/
+    }*//*
     }
 }
+*/
