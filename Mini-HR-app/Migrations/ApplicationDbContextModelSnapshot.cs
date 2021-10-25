@@ -48,22 +48,22 @@ namespace Mini_HR_app.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e9d9bc93-823f-470a-a82f-ce12490e428d",
-                            ConcurrencyStamp = "2cc75ab2-4887-4523-8010-16862032d440",
+                            Id = "dd5d1f66-90eb-4a0b-b08a-6c577095dea5",
+                            ConcurrencyStamp = "e62b646b-e935-48f5-8935-9b655ce10e90",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "27fc541f-2c7c-4e5e-b976-52244b62e73b",
-                            ConcurrencyStamp = "659f82b7-e9bb-418b-9aa6-843bdb910fb1",
+                            Id = "6929ed99-20a3-494f-8d60-ea8fbaa213f2",
+                            ConcurrencyStamp = "d9b193dc-9911-403d-a14c-314ff4677952",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "82a6f620-1a5a-4b2c-bf28-01792816a156",
-                            ConcurrencyStamp = "e8fb935c-8bdf-4d2d-9c77-5b9fe16c68f9",
+                            Id = "445de42b-c191-45d5-b7f2-7e1df24a33dd",
+                            ConcurrencyStamp = "baf7c25a-ba39-4144-992c-14c30f25f2bf",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         });
@@ -258,24 +258,6 @@ namespace Mini_HR_app.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("PersonId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PersonId")
-                        .IsUnique();
-
-                    b.ToTable("Employees");
-                });
-
-            modelBuilder.Entity("Mini_HR_app.Models.Person", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
 
@@ -293,7 +275,7 @@ namespace Mini_HR_app.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("People");
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Models.User", b =>
@@ -437,17 +419,6 @@ namespace Mini_HR_app.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
-                {
-                    b.HasOne("Mini_HR_app.Models.Person", "Person")
-                        .WithOne("Employee")
-                        .HasForeignKey("Mini_HR_app.Models.Employee", "PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Person");
-                });
-
             modelBuilder.Entity("Mini_HR_app.Models.Company", b =>
                 {
                     b.Navigation("CompanyEmployees");
@@ -456,11 +427,6 @@ namespace Mini_HR_app.Migrations
             modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
                 {
                     b.Navigation("CompanyEmployees");
-                });
-
-            modelBuilder.Entity("Mini_HR_app.Models.Person", b =>
-                {
-                    b.Navigation("Employee");
                 });
 #pragma warning restore 612, 618
         }
