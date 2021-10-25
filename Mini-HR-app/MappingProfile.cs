@@ -15,7 +15,6 @@ namespace Mini_HR_app
             CreateMap<Company, CompanyViewModel>().ReverseMap();
             CreateMap<Company, CompanyWithEmployeesViewModel>();
             CreateMap<Employee, EmployeeWithDetailsViewModel>().ReverseMap();
-            CreateMap<Person, PersonViewModel>().ReverseMap();
         }
     }
 }

@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Mini_HR_app.Data;
 using Mini_HR_app.Exceptions;
 using Mini_HR_app.Extensions;
 using Mini_HR_app.Helpers;
@@ -21,13 +19,11 @@ namespace Mini_HR_app.Controllers
     public class CompaniesController : ControllerBase
     {
         private ICompaniesService _companyService;
-        private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
 
-        public CompaniesController(ICompaniesService companyService, ApplicationDbContext context, IMapper mapper)
+        public CompaniesController(ICompaniesService companyService, IMapper mapper)
         {
             _companyService = companyService;
-            _context = context;
             _mapper = mapper;
         }
 
@@ -37,7 +33,7 @@ namespace Mini_HR_app.Controllers
         /// <param name="companyParams"></param>
         /// <returns></returns>
         [HttpGet("Active-Status")]
-        public async Task<ActionResult<IEnumerable<CompanyViewModel>>> GetCompanies([FromQuery]CompanyParams companyParams)
+        public async Task<ActionResult<IEnumerable<CompanyViewModel>>> GetCompanies([FromQuery] CompanyParams companyParams)
         {
             var companies = await _companyService.GetActiveCompanies(companyParams);
 
@@ -102,7 +98,7 @@ namespace Mini_HR_app.Controllers
         {
             var checkCompany = await _companyService.CheckCompanyIsActive(idCompany);
 
-            if(!checkCompany)
+            if (!checkCompany)
             {
                 return BadRequest("Company does not exist");
             }
@@ -129,7 +125,7 @@ namespace Mini_HR_app.Controllers
         public async Task<ActionResult> PutCompanyDetails(int idCompany, CompanyViewModel companyViewModel)
         {
             var company = _mapper.Map<Company>(companyViewModel);
-            
+
             try
             {
                 company = _mapper.Map<Company>(companyViewModel);
@@ -149,7 +145,7 @@ namespace Mini_HR_app.Controllers
             if (!companyEditSuccesful)
             {
                 return NotFound();
-            }           
+            }
 
             return NoContent();
         }
@@ -183,7 +179,7 @@ namespace Mini_HR_app.Controllers
                 return BadRequest("Employee id does not match employee id from view model");
             }
 
-            var person = _mapper.Map<Person>(employeeWithDetailsViewModel.Person);
+            var person = _mapper.Map<Employee>(employeeWithDetailsViewModel);
 
             var employeeEditSuccesfull = await _companyService.PutEmployeeDetails(idCompany, idEmployee, person);
 
@@ -270,19 +266,19 @@ namespace Mini_HR_app.Controllers
         /// Creates new employee entry
         /// </summary>
         /// <param name="idCompany"></param>
-        /// <param name="personViewModel"></param>
+        /// <param name="employeeWithDetailsViewModel"></param>
         /// <returns></returns>
         [HttpPost("{idCompany}/Employee")]
-        public async Task<ActionResult> PostEmployeeForCompany(int idCompany, PersonViewModel personViewModel)
+        public async Task<ActionResult> PostEmployeeForCompany(int idCompany, EmployeeWithDetailsViewModel employeeWithDetailsViewModel)
         {
-            var person = _mapper.Map<Person>(personViewModel);
+            var person = _mapper.Map<Employee>(employeeWithDetailsViewModel);
 
             var checkCompany = await _companyService.PostEmployeeForCompany(idCompany, person);
 
             if (!checkCompany)
             {
                 return NotFound("Company does not exist");
-            }           
+            }
 
             return NoContent();
         }
