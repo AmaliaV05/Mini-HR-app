@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mini_HR_app.Data;
 using Mini_HR_app.Exceptions;
+using Mini_HR_app.Extensions;
+using Mini_HR_app.Helpers;
 using Mini_HR_app.Models;
+using Mini_HR_app.Services;
 using Mini_HR_app.ViewModels;
 
 namespace Mini_HR_app.Controllers
@@ -17,11 +20,13 @@ namespace Mini_HR_app.Controllers
     [ApiController]
     public class CompaniesController : ControllerBase
     {
+        private ICompaniesService _companyService;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
 
-        public CompaniesController(ApplicationDbContext context, IMapper mapper)
+        public CompaniesController(ICompaniesService companyService, ApplicationDbContext context, IMapper mapper)
         {
+            _companyService = companyService;
             _context = context;
             _mapper = mapper;
         }
@@ -29,15 +34,23 @@ namespace Mini_HR_app.Controllers
         /// <summary>
         /// Retrieve all companies' details
         /// </summary>
-        /// <returns>Company details</returns>
+        /// <param name="companyParams"></param>
+        /// <returns></returns>
         [HttpGet("Active-Status")]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<CompanyViewModel>>> GetCompanies()
+        public async Task<ActionResult<IEnumerable<CompanyViewModel>>> GetCompanies([FromQuery]CompanyParams companyParams)
         {
-            return await _context.Companies
-                .Where(c => c.Status == true)
+            var companies = await _companyService.GetActiveCompanies(companyParams);
+
+            if (companies == null)
+            {
+                return BadRequest("Max year of establishment cannot be less than min year of establishment");
+            }
+
+            Response.AddPaginationHeader(companies.CurrentPage, companies.PageSize, companies.TotalCount, companies.TotalPages);
+
+            return companies
                 .Select(c => _mapper.Map<CompanyViewModel>(c))
-                .ToListAsync();
+                .ToList();
         }
 
         /// <summary>
@@ -48,11 +61,11 @@ namespace Mini_HR_app.Controllers
         [HttpGet("{idCompany}")]
         public async Task<ActionResult<CompanyViewModel>> GetCompanyDetails(int idCompany)
         {
-            var company = await _context.Companies.FindAsync(idCompany);
+            var company = await _companyService.GetCompanyDetails(idCompany);
 
             if (company == null)
             {
-                return NotFound();
+                return NotFound("The company does not exist");
             }
 
             var companyViewModel = _mapper.Map<CompanyViewModel>(company);
@@ -65,24 +78,17 @@ namespace Mini_HR_app.Controllers
         /// <param name="idCompany"></param>
         /// <returns>List of employees</returns>
         [HttpGet("{idCompany}/Employees-Active-Status")]
-        [Authorize(Roles = "Manager")]
+        /*[Authorize(Roles = "Manager")]*/
         public async Task<ActionResult<CompanyWithEmployeesViewModel>> GetActiveEmployees(int idCompany)
         {
-            var company = await _context.Companies.FindAsync(idCompany);
+            var company = await _companyService.GetActiveEmployees(idCompany);
 
             if (company == null)
             {
                 return NotFound("The company does not exist");
             }
 
-            return await _context.Companies
-                .Where(c => c.Id == idCompany)
-                .Include(c => c.CompanyEmployees.Where(e => e.Status == true))
-                .ThenInclude(c => c.Employee)
-                .ThenInclude(e => e.Person)
-                .AsSplitQuery()
-                .Select(e => _mapper.Map<CompanyWithEmployeesViewModel>(e))
-                .FirstAsync();
+            return _mapper.Map<CompanyWithEmployeesViewModel>(company);
         }
 
         /// <summary>
@@ -94,30 +100,23 @@ namespace Mini_HR_app.Controllers
         [HttpGet("{idCompany}/Employee/{idEmployee}")]
         public async Task<ActionResult<CompanyWithEmployeesViewModel>> GetEmployeeDetails(int idCompany, int idEmployee)
         {
-            var company = await _context.Companies.FindAsync(idCompany);
+            var checkCompany = await _companyService.CheckCompanyIsActive(idCompany);
 
-            if (company == null)
+            if(!checkCompany)
             {
-                return NotFound("Company does not exist");
+                return BadRequest("Company does not exist");
             }
 
-            var employee = await _context.Employees.FindAsync(idEmployee);
+            var checkEmployee = await _companyService.CheckEmployeeIsActive(idEmployee);
 
-            if (employee == null)
+            if (!checkEmployee)
             {
-                return NotFound("Employee does not exist");
+                return BadRequest("Employee does not exist");
             }
 
-            company = await _context.Companies
-                .Where(c => c.Id == idCompany)
-                .Include(c => c.Employees.Where(e => e.Id == idEmployee))
-                .ThenInclude(e => e.Person)
-                .AsSplitQuery()
-                .FirstOrDefaultAsync();
+            var employees = await _companyService.GetEmployeeDetails(idCompany, idEmployee);
 
-            var employeeViewModel = _mapper.Map<CompanyWithEmployeesViewModel>(company);
-
-            return employeeViewModel;
+            return _mapper.Map<CompanyWithEmployeesViewModel>(employees);
         }
 
         /// <summary>
@@ -133,7 +132,6 @@ namespace Mini_HR_app.Controllers
             
             try
             {
-                //_validator.ValidateCompany(company);
                 company = _mapper.Map<Company>(companyViewModel);
             }
             catch (InvalidCompanyException icEx)
@@ -146,25 +144,12 @@ namespace Mini_HR_app.Controllers
                 return BadRequest("Company id does not match the input id");
             }
 
-            company.Status = true;
+            var companyEditSuccesful = await _companyService.PutCompanyDetails(idCompany, company);
 
-            _context.Entry(company).State = EntityState.Modified;
-            
-            try
+            if (!companyEditSuccesful)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CompanyExists(idCompany))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                return NotFound();
+            }           
 
             return NoContent();
         }
@@ -179,34 +164,32 @@ namespace Mini_HR_app.Controllers
         [HttpPut("{idCompany}/Employee/{idEmployee}")]
         public async Task<ActionResult> PutEmployeeDetails(int idCompany, int idEmployee, EmployeeWithDetailsViewModel employeeWithDetailsViewModel)
         {
-            var company = await _context.Companies
-                .Where(c => c.Id == idCompany)
-                .Include(c => c.Employees)
-                .FirstOrDefaultAsync();
+            var checkCompany = await _companyService.CheckCompanyIsActive(idCompany);
 
-            var person = _mapper.Map<Person>(employeeWithDetailsViewModel.Person);
+            if (!checkCompany)
+            {
+                return BadRequest("Company does not exist");
+            }
+
+            var checkEmployee = await _companyService.CheckEmployeeIsActive(idEmployee);
+
+            if (!checkEmployee)
+            {
+                return BadRequest("Employee does not exist");
+            }
 
             if (idEmployee != employeeWithDetailsViewModel.Id)
             {
-                return BadRequest();
+                return BadRequest("Employee id does not match employee id from view model");
             }
 
-            _context.Entry(person).State = EntityState.Modified;
+            var person = _mapper.Map<Person>(employeeWithDetailsViewModel.Person);
 
-            try
+            var employeeEditSuccesfull = await _companyService.PutEmployeeDetails(idCompany, idEmployee, person);
+
+            if (!employeeEditSuccesfull)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CompanyExists(idCompany) || !EmployeeExists(idEmployee))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
             }
 
             return NoContent();
@@ -218,36 +201,16 @@ namespace Mini_HR_app.Controllers
         /// <param name="idCompany"></param>
         /// <returns></returns>
         [HttpPut("{idCompany}/Change-Status-To-Inactive")]
-        public async Task<ActionResult<CompanyViewModel>> PutCompanyStatusToInactive(int idCompany)
+        public async Task<ActionResult> PutCompanyStatusToInactive(int idCompany)
         {
-            var company = _context.Companies
-                .Where(c => c.Id == idCompany)
-                .FirstOrDefault();
+            var companyEditSuccesful = await _companyService.PutCompanyStatusToInactive(idCompany);
 
-            if (company == null)
+            if (!companyEditSuccesful)
             {
                 return BadRequest("The company does not exist");
             }
 
-            /*var checkCompanyEmployees = await _context.Companies
-                .Where(c => c.Id == idCompany)
-                .Include(c => c.CompanyEmployees.Where(e => e.Status == true))
-                .FirstOrDefaultAsync();
-
-            Console.WriteLine(checkCompanyEmployees.CompanyEmployees.Count);
-            Console.WriteLine(checkCompanyEmployees);
-
-            if (checkCompanyEmployees != null)
-            {
-                return BadRequest("The company still has employees");
-            }*/
-
-            company.Status = false;
-
-            _context.Entry(company).Property(x => x.Status).IsModified = true;
-            await _context.SaveChangesAsync();
-
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -257,28 +220,30 @@ namespace Mini_HR_app.Controllers
         /// <param name="idEmployee"></param>
         /// <returns></returns>
         [HttpPut("{idCompany}/Employee-Change-Status-To-Inactive/{idEmployee}")]
-        public async Task<ActionResult<CompanyWithEmployeesViewModel>> PutEmployeeStatusToInactive(int idCompany, int idEmployee)
+        public async Task<ActionResult> PutEmployeeStatusToInactive(int idCompany, int idEmployee)
         {
-            var company = _context.Companies
-                .Where(c => c.Id == idCompany)
-                .Include(c => c.CompanyEmployees.Where(e => e.Status == true))
-                .Include(c => c.Employees.Where(e => e.Id == idEmployee))
-                .AsSplitQuery()
-                .FirstOrDefault();
+            var checkCompany = await _companyService.CheckCompanyIsActive(idCompany);
 
-            if (company == null)
+            if (!checkCompany)
+            {
+                return BadRequest("Company does not exist");
+            }
+
+            var checkEmployee = await _companyService.CheckEmployeeIsActive(idEmployee);
+
+            if (!checkEmployee)
+            {
+                return BadRequest("Employee does not exist");
+            }
+
+            var company = await _companyService.PutEmployeeStatusToInactive(idCompany, idEmployee);
+
+            if (!company)
             {
                 return BadRequest("The employee is not active at the chosen company");
             }
 
-            var employee = company.CompanyEmployees.FirstOrDefault();
-
-            employee.Status = false;
-
-            _context.Entry(employee).Property(x => x.Status).IsModified = true;
-            await _context.SaveChangesAsync();
-
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -287,25 +252,18 @@ namespace Mini_HR_app.Controllers
         /// <param name="companyViewModel"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<CompanyViewModel>> PostCompany(CompanyViewModel companyViewModel)
+        public async Task<ActionResult> PostCompany(CompanyViewModel companyViewModel)
         {
-            var checkCompany = await _context.Companies
-                .Where(c => c.FiscalCode == companyViewModel.FiscalCode)
-                .FirstOrDefaultAsync();
-
-            if (checkCompany != null)
-            {
-                return BadRequest("Company already exist");
-            }            
-
             var company = _mapper.Map<Company>(companyViewModel);
 
-            company.Status = true;
+            var checkCompany = await _companyService.PostCompany(company);
 
-            await _context.Companies.AddAsync(company);
-            await _context.SaveChangesAsync();
+            if (!checkCompany)
+            {
+                return BadRequest("Company already exists");
+            }
 
-            return CreatedAtAction("GetCompany", new { id = company.Id }, company);
+            return NoContent();
         }
 
         /// <summary>
@@ -317,62 +275,16 @@ namespace Mini_HR_app.Controllers
         [HttpPost("{idCompany}/Employee")]
         public async Task<ActionResult> PostEmployeeForCompany(int idCompany, PersonViewModel personViewModel)
         {
-            var company = await _context.Companies
-                .Where(c => c.Id == idCompany)
-                .FirstOrDefaultAsync();
+            var person = _mapper.Map<Person>(personViewModel);
 
-            if (company == null)
+            var checkCompany = await _companyService.PostEmployeeForCompany(idCompany, person);
+
+            if (!checkCompany)
             {
-                return NotFound("Company details do not exist");
-            }
+                return NotFound("Company does not exist");
+            }           
 
-            var findPerson = _context.People
-                .Where(p => p.Ssn == personViewModel.Ssn)
-                .FirstOrDefault();
-
-            if (findPerson == null)
-            {
-                var person = _mapper.Map<Person>(personViewModel);
-
-                await _context.People.AddAsync(person);
-                await _context.SaveChangesAsync();
-            }            
-
-            var existingPerson = _context.People
-                .Single(p => p.Ssn == personViewModel.Ssn);
-            
-            var employee = new Employee
-            {
-                PersonId = existingPerson.Id
-            };
-            await _context.Employees.AddAsync(employee);
-            await _context.SaveChangesAsync();
-
-            var existingEmployee = _context.Employees
-                .Single(e => e.Person.Ssn == existingPerson.Ssn);
-
-            var existingCompany = _context.Companies
-                .Include(c => c.Employees)
-                .Single(c => c.Id == idCompany);
-
-            company.CompanyEmployees.Add(new CompanyEmployee
-            {
-                Company = existingCompany,
-                Employee = existingEmployee,
-                Status = true
-            });
-            await _context.SaveChangesAsync();
-
-            return Ok("New employee entry was added");
-        }
-
-        private bool CompanyExists(int id)
-        {
-            return _context.Companies.Any(e => e.Id == id);
-        }
-        private bool EmployeeExists(int id)
-        {
-            return _context.Employees.Any(e => e.Id == id);
+            return NoContent();
         }
     }
 }

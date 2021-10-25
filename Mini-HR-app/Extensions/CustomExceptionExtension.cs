@@ -36,6 +36,11 @@ namespace Mini_HR_app.Extensions
                 _logger.LogError($"A new company exception has been thrown: {icEx}");
                 await HandleExceptionAsync(httpContext, icEx);
             }
+            catch (NullReferenceException nrEx)
+            {
+                _logger.LogError($"A null reference exception has been thrown: {nrEx}");
+                await HandleExceptionAsync(httpContext, nrEx);
+            }
             catch (Exception ex)
             {
                 _logger.LogError($"Something went wrong: {ex}");
