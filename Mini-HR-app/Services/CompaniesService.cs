@@ -72,17 +72,15 @@ namespace Mini_HR_app.Services
                 .Where(c => c.Id == idCompany)
                 .Include(c => c.CompanyEmployees.Where(e => e.Status == true))
                 .ThenInclude(c => c.Employee)
-                .ThenInclude(e => e.Person)
                 .AsSplitQuery()
                 .FirstAsync();
         }
 
         public async Task<Company> GetEmployeeDetails(int idCompany, int idEmployee)
-        {  
+        {
             return await _context.Companies
                 .Where(c => c.Id == idCompany)
                 .Include(c => c.Employees.Where(e => e.Id == idEmployee))
-                .ThenInclude(e => e.Person)
                 .AsSplitQuery()
                 .FirstOrDefaultAsync();
         }
@@ -126,7 +124,7 @@ namespace Mini_HR_app.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await CompanyExists (idCompany))
+                if (!await CompanyExists(idCompany))
                 {
                     return false;
                 }
@@ -139,9 +137,9 @@ namespace Mini_HR_app.Services
             return true;
         }
 
-        public async Task<bool> PutEmployeeDetails(int idCompany, int idEmployee, Person person)
+        public async Task<bool> PutEmployeeDetails(int idCompany, int idEmployee, Employee employee)
         {
-            _context.Entry(person).State = EntityState.Modified;
+            _context.Entry(employee).State = EntityState.Modified;
 
             try
             {
@@ -225,7 +223,7 @@ namespace Mini_HR_app.Services
             return true;
         }
 
-        public async Task<bool> PostEmployeeForCompany(int idCompany, Person person)
+        public async Task<bool> PostEmployeeForCompany(int idCompany, Employee employee)
         {
             var company = await _context.Companies
                 .Where(c => c.Id == idCompany && c.Status == true)
@@ -236,27 +234,16 @@ namespace Mini_HR_app.Services
                 return false;
             }
 
-            var existingPerson = await _context.People
-                .Where(p => p.Ssn == person.Ssn)
+            var existingEmployee = await _context.Employees
+                .Where(p => p.Ssn == employee.Ssn)
                 .FirstOrDefaultAsync();
 
-            if (existingPerson == null)
+            if (existingEmployee == null)
             {
-                existingPerson = person;
-
-                await _context.People.AddAsync(existingPerson);
+                existingEmployee = employee;
+                await _context.Employees.AddAsync(existingEmployee);
                 await _context.SaveChangesAsync();
             }
-
-            var employee = new Employee
-            {
-                PersonId = existingPerson.Id
-            };
-            await _context.Employees.AddAsync(employee);
-            await _context.SaveChangesAsync();
-
-            var existingEmployee = await _context.Employees
-                .SingleAsync(e => e.Person.Ssn == existingPerson.Ssn);
 
             var existingCompany = await _context.Companies
                 .Include(c => c.Employees)

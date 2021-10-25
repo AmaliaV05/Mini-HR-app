@@ -14,11 +14,11 @@ namespace Mini_HR_app.Services
         Task<Company> GetActiveEmployees(int idCompany);
         Task<Company> GetEmployeeDetails(int idCompany, int idEmployee);
         Task<bool> PutCompanyDetails(int idCompany, Company company);
-        Task<bool> PutEmployeeDetails(int idCompany, int idEmployee, Person person);
+        Task<bool> PutEmployeeDetails(int idCompany, int idEmployee, Employee employee);
         Task<bool> PutCompanyStatusToInactive(int idCompany);
         Task<bool> PutEmployeeStatusToInactive(int idCompany, int idEmployee);
         Task<bool> PostCompany(Company company);
-        Task<bool> PostEmployeeForCompany(int idCompany, Person person);
+        Task<bool> PostEmployeeForCompany(int idCompany, Employee employee);
         Task<bool> CheckCompanyIsActive(int idCompany);
         Task<bool> CheckEmployeeIsActive(int idEmployee);
     }
