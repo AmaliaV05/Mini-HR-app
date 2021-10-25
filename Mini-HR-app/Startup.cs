@@ -91,6 +91,7 @@ namespace Mini_HR_app
 
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthManagementService, AuthManagementService>();
+            services.AddScoped<ICompaniesService, CompaniesService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
