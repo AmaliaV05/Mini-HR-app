@@ -125,6 +125,11 @@ namespace Mini_HR_app.Services
 
         public async Task<bool> PutCompanyDetails(int idCompany, Company company)
         {
+            if (idCompany != company.Id)
+            {
+                return false;
+            }
+
             company.Status = true;
 
             _context.Entry(company).State = EntityState.Modified;
