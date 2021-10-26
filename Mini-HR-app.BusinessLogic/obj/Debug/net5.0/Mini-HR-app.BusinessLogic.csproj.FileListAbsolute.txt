@@ -9,7 +9,6 @@ D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0\Mini-HR-app.BusinessLogic.pdb
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0\Mini-HR-app.Data.dll
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0\Mini-HR-app.Data.pdb
-D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\obj\Debug\net5.0\Mini-HR-app.BusinessLogic.csproj.CopyComplete
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\obj\Debug\net5.0\Mini-HR-app.BusinessLogic.dll
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\obj\Debug\net5.0\ref\Mini-HR-app.BusinessLogic.dll
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\obj\Debug\net5.0\Mini-HR-app.BusinessLogic.pdb
