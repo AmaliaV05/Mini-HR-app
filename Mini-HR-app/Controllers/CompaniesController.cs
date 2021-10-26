@@ -160,28 +160,14 @@ namespace Mini_HR_app.Controllers
         [HttpPut("{idCompany}/Employee/{idEmployee}")]
         public async Task<ActionResult> PutEmployeeDetails(int idCompany, int idEmployee, EmployeeWithDetailsViewModel employeeWithDetailsViewModel)
         {
-            var checkCompany = await _companyService.CheckCompanyIsActive(idCompany);
+            var employee = _mapper.Map<Employee>(employeeWithDetailsViewModel);
 
-            if (!checkCompany)
+            if (idEmployee != employee.Id)
             {
-                return BadRequest("Company does not exist");
+                return BadRequest();
             }
 
-            var checkEmployee = await _companyService.CheckEmployeeIsActive(idEmployee);
-
-            if (!checkEmployee)
-            {
-                return BadRequest("Employee does not exist");
-            }
-
-            if (idEmployee != employeeWithDetailsViewModel.Id)
-            {
-                return BadRequest("Employee id does not match employee id from view model");
-            }
-
-            var person = _mapper.Map<Employee>(employeeWithDetailsViewModel);
-
-            var employeeEditSuccesfull = await _companyService.PutEmployeeDetails(idCompany, idEmployee, person);
+            var employeeEditSuccesfull = await _companyService.PutEmployeeDetails(idCompany, idEmployee, employee);
 
             if (!employeeEditSuccesfull)
             {
