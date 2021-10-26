@@ -18,5 +18,5 @@ namespace Mini_HR_app.Helpers
         }
 
         public string OrderBy { get; set; }
-    }
+    }       
 }

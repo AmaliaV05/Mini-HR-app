@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jeYEPrYZeS9MT7zksR5Vhzg3S2Q+1DiLWTuT7NS+AasHHSoTm68cH2bRWfz8tM/Zq+kQ+rC3g8s2UkJ2S7QUkA==",
+  "dgSpecHash": "N1H0HoHOsQptDHIa76BSlZGiGiQE3ny90JUorqJpdZU12sR8ZRA3zyQtZVYU15sV9mdf0InVJNF6iRSZNQ9Mlg==",
   "success": true,
   "projectFilePath": "D:\\Projects\\Projects .NET\\Mini-HR-app\\Tests\\Tests.csproj",
   "expectedPackageFiles": [
@@ -150,6 +150,7 @@
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.io.filesystem\\4.3.0\\system.io.filesystem.4.3.0.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.io.filesystem.primitives\\4.3.0\\system.io.filesystem.primitives.4.3.0.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.linq\\4.3.0\\system.linq.4.3.0.nupkg.sha512",
+    "C:\\Users\\Asus\\.nuget\\packages\\system.linq.dynamic.core\\1.2.13\\system.linq.dynamic.core.1.2.13.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.linq.expressions\\4.3.0\\system.linq.expressions.4.3.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.net.http\\4.3.0\\system.net.http.4.3.0.nupkg.sha512",
