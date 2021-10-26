@@ -1,0 +1,12 @@
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\obj\Debug\net5.0\Mini-HR-app.Data.csproj.AssemblyReference.cache
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\obj\Debug\net5.0\Mini-HR-app.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\obj\Debug\net5.0\Mini-HR-app.Data.AssemblyInfoInputs.cache
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\obj\Debug\net5.0\Mini-HR-app.Data.AssemblyInfo.cs
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\obj\Debug\net5.0\Mini-HR-app.Data.csproj.CoreCompileInputs.cache
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\bin\Debug\net5.0\Mini-HR-app.Data.deps.json
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\bin\Debug\net5.0\Mini-HR-app.Data.dll
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\bin\Debug\net5.0\ref\Mini-HR-app.Data.dll
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\bin\Debug\net5.0\Mini-HR-app.Data.pdb
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\obj\Debug\net5.0\Mini-HR-app.Data.dll
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\obj\Debug\net5.0\ref\Mini-HR-app.Data.dll
+D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.Data\obj\Debug\net5.0\Mini-HR-app.Data.pdb
