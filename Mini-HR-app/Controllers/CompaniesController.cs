@@ -199,11 +199,18 @@ namespace Mini_HR_app.Controllers
         [HttpPut("{idCompany}/Change-Status-To-Inactive")]
         public async Task<ActionResult> PutCompanyStatusToInactive(int idCompany)
         {
+            var checkCompany = await _companyService.CheckCompanyIsActive(idCompany);
+
+            if (!checkCompany)
+            {
+                return BadRequest("Company does not exist");
+            }
+
             var companyEditSuccesful = await _companyService.PutCompanyStatusToInactive(idCompany);
 
             if (!companyEditSuccesful)
             {
-                return BadRequest("The company does not exist");
+                return BadRequest("The company still has employees");
             }
 
             return NoContent();
@@ -271,9 +278,9 @@ namespace Mini_HR_app.Controllers
         [HttpPost("{idCompany}/Employee")]
         public async Task<ActionResult> PostEmployeeForCompany(int idCompany, EmployeeWithDetailsViewModel employeeWithDetailsViewModel)
         {
-            var person = _mapper.Map<Employee>(employeeWithDetailsViewModel);
+            var employee = _mapper.Map<Employee>(employeeWithDetailsViewModel);
 
-            var checkCompany = await _companyService.PostEmployeeForCompany(idCompany, person);
+            var checkCompany = await _companyService.PostEmployeeForCompany(idCompany, employee);
 
             if (!checkCompany)
             {
