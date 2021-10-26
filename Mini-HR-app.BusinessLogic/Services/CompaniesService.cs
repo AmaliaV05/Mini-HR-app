@@ -178,7 +178,7 @@ namespace Mini_HR_app.Services
                 .Include(c => c.CompanyEmployees.Where(e => e.Status == true))
                 .FirstOrDefaultAsync();
 
-            if (company != null)
+            if (company.CompanyEmployees.Count != 0)
             {
                 return false;
             }
@@ -238,6 +238,7 @@ namespace Mini_HR_app.Services
         {
             var company = await _context.Companies
                 .Where(c => c.Id == idCompany && c.Status == true)
+                .Include(c => c.CompanyEmployees)
                 .FirstOrDefaultAsync();
 
             if (company == null)
@@ -251,8 +252,7 @@ namespace Mini_HR_app.Services
 
             if (existingEmployee == null)
             {
-                existingEmployee = employee;
-                await _context.Employees.AddAsync(existingEmployee);
+                await _context.Employees.AddAsync(employee);
                 await _context.SaveChangesAsync();
             }
 
@@ -260,12 +260,24 @@ namespace Mini_HR_app.Services
                 .Include(c => c.Employees)
                 .SingleAsync(c => c.Id == idCompany);
 
-            company.CompanyEmployees.Add(new CompanyEmployee
+            if (company.CompanyEmployees.Count == 0)
             {
-                Company = existingCompany,
-                Employee = existingEmployee,
-                Status = true
-            });
+                await _context.CompanyEmployee.AddAsync(new CompanyEmployee
+                {
+                    Company = existingCompany,
+                    Employee = employee,
+                    Status = true
+                });
+            }
+            else
+            {
+                existingCompany.CompanyEmployees.Add(new CompanyEmployee
+                {
+                    Company = existingCompany,
+                    Employee = employee,
+                    Status = true
+                });
+            } 
             await _context.SaveChangesAsync();
 
             return true;
