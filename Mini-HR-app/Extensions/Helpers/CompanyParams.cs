@@ -16,6 +16,6 @@ namespace Mini_HR_app.Helpers
         public int? MaxYearOfEstablishment { get; set; } = DateTime.Now.Year;
         public bool ValidYearRange => MaxYearOfEstablishment > MinYearOfEstablishment;
 
-        //public string CompanyName { get; set; }
+        public string CompanyName { get; set; }
     }
 }
