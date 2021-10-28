@@ -1,12 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Mini_HR_app.Data;
+using Mini_HR_app.Exceptions;
 using Mini_HR_app.Helpers;
 using Mini_HR_app.Models;
-using System;
 using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Mini_HR_app.Services
@@ -24,31 +21,26 @@ namespace Mini_HR_app.Services
         {
             var query = _context.Companies.Where(c => c.Status == true).AsQueryable();
 
-            if (companyParams.MinYearOfEstablishment != null && companyParams.MaxYearOfEstablishment != null)
+            //filter by range of years
+            if (!companyParams.ValidYearRange)
             {
-                if (!companyParams.ValidYearRange)
-                {
-                    return null;
-                }
+                throw new GetCompanyException("Invalid year range");
+            }
+            query = query.Where(f => f.DateOfEstablishment.Year <= companyParams.MaxYear &&
+                            f.DateOfEstablishment.Year >= companyParams.MinYear);
 
-                query = query.Where(f => f.DateOfEstablishment.Year <= companyParams.MaxYearOfEstablishment &&
-                                f.DateOfEstablishment.Year >= companyParams.MinYearOfEstablishment);
-            }
-            else if (companyParams.MinYearOfEstablishment != null && companyParams.MaxYearOfEstablishment == null)
-            {
-                query = query.Where(f => f.DateOfEstablishment.Year >= companyParams.MinYearOfEstablishment);
-            }
-            else if (companyParams.MinYearOfEstablishment == null && companyParams.MaxYearOfEstablishment != null)
-            {
-                query = query.Where(f => f.DateOfEstablishment.Year <= companyParams.MaxYearOfEstablishment);
-            }
-
+            //search by title
             if (!string.IsNullOrEmpty(companyParams.CompanyName))
             {
                 query = query.Where(f => f.CompanyName.ToLower().Contains(companyParams.CompanyName.ToLower()));
             }
 
-            ApplySort(ref query, companyParams.OrderBy);
+            //sort by company name, then by date of establishment
+            if (!string.IsNullOrEmpty(companyParams.SortByName) && !string.IsNullOrEmpty(companyParams.SortByDate))
+            {
+                query = query.OrderBy(x => EF.Property<string>(x, companyParams.SortByName))
+                .ThenBy(x => EF.Property<string>(x, companyParams.SortByDate));
+            }
 
             return await PagedList<Company>.CreateAsync(query.AsNoTracking(),
                 companyParams.PageNumber, companyParams.PageSize);
@@ -62,7 +54,7 @@ namespace Mini_HR_app.Services
 
             if (company == null)
             {
-                return null;
+                throw new GetCompanyException($"Company with id: {idCompany} does not exist");
             }
 
             return company;
@@ -70,14 +62,7 @@ namespace Mini_HR_app.Services
 
         public async Task<Company> GetActiveEmployees(int idCompany)
         {
-            var company = await _context.Companies
-                .Where(c => c.Status == true && c.Id == idCompany)
-                .FirstOrDefaultAsync();
-
-            if (company == null)
-            {
-                return null;
-            }
+            await CheckCompanyIsActive(idCompany);
 
             return await _context.Companies
                 .Where(c => c.Id == idCompany)
@@ -89,14 +74,24 @@ namespace Mini_HR_app.Services
 
         public async Task<Company> GetEmployeeDetails(int idCompany, int idEmployee)
         {
-            return await _context.Companies
-                .Where(c => c.Id == idCompany)
-                .Include(c => c.Employees.Where(e => e.Id == idEmployee))
-                .AsSplitQuery()
-                .FirstOrDefaultAsync();
+            await CheckCompanyIsActive(idCompany);
+
+            var employee = await _context.Companies
+               .Where(c => c.Id == idCompany)
+               .Include(c => c.Employees.Where(e => e.Id == idEmployee))
+               .ThenInclude(e => e.CompanyEmployees.Where(e => e.Status == true))
+               .AsSplitQuery()
+               .FirstOrDefaultAsync();
+
+            if (employee == null)
+            {
+                throw new GetEmployeeException($"Employee with id: {idEmployee} does not exist");
+            }
+
+            return employee;
         }
 
-        public async Task<bool> CheckCompanyIsActive(int idCompany)
+        private async Task CheckCompanyIsActive(int idCompany)
         {
             var company = await _context.Companies
                .Where(c => c.Status == true && c.Id == idCompany)
@@ -104,80 +99,51 @@ namespace Mini_HR_app.Services
 
             if (company == null)
             {
-                return false;
+                throw new GetCompanyException($"Company with id: {idCompany} does not exist");
             }
-            return true;
-        }
+        }        
 
-        public async Task<bool> CheckEmployeeIsActive(int idEmployee)
-        {
-            var employee = await _context.Employees
-               .Where(e => e.Id == idEmployee)
-               .Include(e => e.CompanyEmployees.Where(e => e.Status == true))
-               .FirstOrDefaultAsync();
-
-            if (employee == null)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public async Task<bool> PutCompanyDetails(int idCompany, Company company)
+        public async Task PutCompanyDetails(int idCompany, Company company)
         {
             if (idCompany != company.Id)
             {
-                return false;
+                throw new PutCompanyException($"Company id: {company.Id} does not match input id: {idCompany}");
+            }
+
+            if (!await _context.Companies.AnyAsync(e => e.Id == idCompany))
+            {
+                throw new PutCompanyException($"Company id: {company.Id} does not exist");
             }
 
             company.Status = true;
 
-            _context.Entry(company).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await CompanyExists(idCompany))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return true;
+            _context.Entry(company).State = EntityState.Modified;                   
         }
 
-        public async Task<bool> PutEmployeeDetails(int idCompany, int idEmployee, Employee employee)
+        public async Task<bool> SaveChangesAsync()
         {
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task PutEmployeeDetails(int idCompany, int idEmployee, Employee employee)
+        {
+            if (idEmployee != employee.Id)
+            {
+                throw new PutEmployeeException($"Employee id: {employee.Id} does not match input id: {idEmployee}");
+            }
+
+            if (!await _context.Employees.AnyAsync(e => e.Id == idEmployee))
+            {
+                throw new PutEmployeeException($"Employee id: {employee.Id} does not exist");
+            }
+
             _context.Entry(employee).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await CompanyExists(idCompany) || !await EmployeeExists(idEmployee))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return true;
         }
 
-        public async Task<bool> PutCompanyStatusToInactive(int idCompany)
+        public async Task PutCompanyStatusToInactive(int idCompany)
         {
+            await CheckCompanyIsActive(idCompany);
+
             var company = await _context.Companies
                 .Where(c => c.Id == idCompany)
                 .Include(c => c.CompanyEmployees.Where(e => e.Status == true))
@@ -185,19 +151,18 @@ namespace Mini_HR_app.Services
 
             if (company.CompanyEmployees.Count != 0)
             {
-                return false;
+                throw new PutCompanyException($"Company still has {company.CompanyEmployees.Count} employees left");
             }
 
             company.Status = false;
 
             _context.Entry(company).Property(x => x.Status).IsModified = true;
-            await _context.SaveChangesAsync();
-
-            return true;
         }
 
-        public async Task<bool> PutEmployeeStatusToInactive(int idCompany, int idEmployee)
+        public async Task PutEmployeeStatusToInactive(int idCompany, int idEmployee)
         {
+            await CheckCompanyIsActive(idCompany);
+
             var company = _context.Companies
                 .Where(c => c.Id == idCompany)
                 .Include(c => c.CompanyEmployees.Where(e => e.Status == true))
@@ -207,7 +172,7 @@ namespace Mini_HR_app.Services
 
             if (company == null)
             {
-                return false;
+                throw new PutEmployeeException($"Employee with id: {idEmployee} does not exist");
             }
 
             var employee = company.CompanyEmployees.FirstOrDefault();
@@ -215,12 +180,9 @@ namespace Mini_HR_app.Services
             employee.Status = false;
 
             _context.Entry(employee).Property(x => x.Status).IsModified = true;
-            await _context.SaveChangesAsync();
-
-            return true;
         }
 
-        public async Task<bool> PostCompany(Company company)
+        public async Task PostCompany(Company company)
         {
             var checkCompany = await _context.Companies
                 .Where(c => c.FiscalCode == company.FiscalCode)
@@ -228,18 +190,15 @@ namespace Mini_HR_app.Services
 
             if (checkCompany != null)
             {
-                return false;
+                throw new PostCompanyException($"Company with fiscal code {checkCompany.FiscalCode} already exists");
             }
 
             company.Status = true;
 
             await _context.Companies.AddAsync(company);
-            await _context.SaveChangesAsync();
-
-            return true;
         }
 
-        public async Task<bool> PostEmployeeForCompany(int idCompany, Employee employee)
+        public async Task PostEmployeeForCompany(int idCompany, Employee employee)
         {
             var company = await _context.Companies
                 .Where(c => c.Id == idCompany && c.Status == true)
@@ -248,7 +207,7 @@ namespace Mini_HR_app.Services
 
             if (company == null)
             {
-                return false;
+                throw new PostEmployeeException($"Company with id: {idCompany} does not exist");
             }
 
             var existingEmployee = await _context.Employees
@@ -282,57 +241,7 @@ namespace Mini_HR_app.Services
                     Employee = employee,
                     Status = true
                 });
-            } 
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
-        private async Task<bool> CompanyExists(int id)
-        {
-            return await _context.Companies.AnyAsync(e => e.Id == id);
-        }
-
-        private async Task<bool> EmployeeExists(int id)
-        {
-            return await _context.Employees.AnyAsync(e => e.Id == id);
-        }
-
-        private static void ApplySort(ref IQueryable<Company> companies, string orderByQueryString)
-        {
-            if (!companies.Any())
-                return;
-            if (string.IsNullOrWhiteSpace(orderByQueryString))
-            {
-                companies = companies.OrderBy(x => x.CompanyName);
-                return;
             }
-
-            var companyParams = orderByQueryString.Trim().Split(',');
-            var propertyInfos = typeof(Company).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var orderQueryBuilder = new StringBuilder();
-
-            foreach (var param in companyParams)
-            {
-                if (string.IsNullOrWhiteSpace(param))
-                    continue;
-                var propertyFromQueryName = param.Split(" ")[0];
-                var objectProperty = propertyInfos.FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
-                if (objectProperty == null)
-                    continue;
-                var sortingOrder = param.EndsWith(" desc") ? "descending" : "ascending";
-                orderQueryBuilder.Append($"{objectProperty.Name} {sortingOrder}, ");
-            }
-
-            var orderQuery = orderQueryBuilder.ToString().TrimEnd(',', ' ');
-
-            if (string.IsNullOrWhiteSpace(orderQuery))
-            {
-                companies = companies.OrderBy(x => x.CompanyName);
-                return;
-            }
-
-            companies = companies.OrderBy(orderQuery);
-        }
+        }        
     }
 }

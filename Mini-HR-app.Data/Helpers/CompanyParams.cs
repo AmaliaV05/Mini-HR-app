@@ -7,15 +7,12 @@ namespace Mini_HR_app.Helpers
 {
     public class CompanyParams : QueryStringParameters
     {
-        public CompanyParams()
-        {
-            OrderBy = "companyName";
-        }
+        public int MinYear { get; set; } = 1900;
+        public int MaxYear { get; set; } = DateTime.Now.Year;
+        public bool ValidYearRange => MaxYear > MinYear;
 
-        public int? MinYearOfEstablishment { get; set; }
-        public int? MaxYearOfEstablishment { get; set; } = DateTime.Now.Year;
-        public bool ValidYearRange => MaxYearOfEstablishment > MinYearOfEstablishment;
-
-        public string CompanyName { get; set; }
+        public string CompanyName { get; set; } 
+        public string SortByName { get; set; }
+        public string SortByDate { get; set; }
     }
 }

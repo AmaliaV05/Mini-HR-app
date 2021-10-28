@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Mini_HR_app.Exceptions;
 using Mini_HR_app.ViewModels;
@@ -26,16 +27,61 @@ namespace Mini_HR_app.Extensions
             {
                 await _next(httpContext);
             }
+            catch (InvalidCompanyException icEx)
+            {
+                _logger.LogError($"Adding a new valid company exception has been thrown: {icEx}");
+                await HandleExceptionAsync(httpContext, icEx);
+            }
+            catch (GetCompanyException gcEx)
+            {
+                _logger.LogError($"Getting companies list/details exception has been thrown: { gcEx}");
+                await HandleExceptionAsync(httpContext, gcEx);
+            }
+            catch (PutCompanyException pcEx)
+            {
+                _logger.LogError($"Modifying a company's details exception has been thrown: {pcEx}");
+                await HandleExceptionAsync(httpContext, pcEx);
+            }
+            catch (PostCompanyException pcEx)
+            {
+                _logger.LogError($"Creating a new company exception has been thrown: {pcEx}");
+                await HandleExceptionAsync(httpContext, pcEx);
+            }
+            catch (InvalidEmployeeException ieEx)
+            {
+                _logger.LogError($"Adding a new valid employee exception has been thrown: {ieEx}");
+                await HandleExceptionAsync(httpContext, ieEx);
+            }
+            catch (GetEmployeeException geEx)
+            {
+                _logger.LogError($"Getting employees list/details exception has been thrown: { geEx}");
+                await HandleExceptionAsync(httpContext, geEx);
+            }
+            catch (PutEmployeeException peEx)
+            {
+                _logger.LogError($"Modifying an employee's details exception has been thrown: {peEx}");
+                await HandleExceptionAsync(httpContext, peEx);
+            }
+            catch (PostEmployeeException peEx)
+            {
+                _logger.LogError($"Creating a new employee exception has been thrown: {peEx}");
+                await HandleExceptionAsync(httpContext, peEx);
+            }
+            catch (DbUpdateConcurrencyException ducEx)
+            {
+                _logger.LogError($"A database update concurrency exception has been thrown: {ducEx}");
+                await HandleExceptionAsync(httpContext, ducEx);
+            }
+            catch (ArgumentNullException anEx)
+            {
+                _logger.LogError($"A argument null exception has been thrown: {anEx}");
+                await HandleExceptionAsync(httpContext, anEx);
+            }
             catch (AccessViolationException avEx)
             {
                 _logger.LogError($"A new violation exception has been thrown: {avEx}");
                 await HandleExceptionAsync(httpContext, avEx);
-            }
-            catch (InvalidCompanyException icEx)
-            {
-                _logger.LogError($"A new company exception has been thrown: {icEx}");
-                await HandleExceptionAsync(httpContext, icEx);
-            }
+            }            
             catch (NullReferenceException nrEx)
             {
                 _logger.LogError($"A null reference exception has been thrown: {nrEx}");
@@ -60,22 +106,49 @@ namespace Mini_HR_app.Extensions
             var msg = "";
 
             switch (exception)
-            {
+            {                
+                case InvalidCompanyException:
+                    msg = "Company model violation from the custom middleware";
+                    break;
+                case GetCompanyException:
+                    msg = "Company listing/detailed showing violation from the custom middleware";
+                    break;
+                case PutCompanyException:
+                    msg = "Company details' modification violation from the custom middleware";
+                    break;
+                case PostCompanyException:
+                    msg = "Company creation violation from the custom middleware";
+                    break;
+                case InvalidEmployeeException:
+                    msg = "Employee model violation from the custom middleware";
+                    break;
+                case GetEmployeeException:
+                    msg = "Employee listing/detailed showing violation from the custom middleware";
+                    break;
+                case PutEmployeeException:
+                    msg = "Employee details' modification violation from the custom middleware";
+                    break;
+                case PostEmployeeException:
+                    msg = "Employee creation violation from the custom middleware";
+                    break;
+                case DbUpdateConcurrencyException:
+                    msg = "Database update concurrency violation from the custom middleware";
+                    break;
+                case ArgumentNullException:
+                    msg = "Argument violation from the custom middleware";
+                    break;
                 case AccessViolationException:
                     msg = "Access violation error from the custom middleware";
                     break;
-                case InvalidCompanyException:
-                    msg = "Company model violation from the custom middleware";
+                case NullReferenceException:
+                    msg = "Reference violation from the custom middleware";
+                    break;
+                case InvalidOperationException:
+                    msg = "Operation violation from the custom middleware";
                     break;
                 default:
                     break;
             }
-            
-            var message = exception switch
-            {
-                AccessViolationException => "Access violation error from the custom middleware",
-                _ => "Internal Server Error from the custom middleware"
-            };
 
             httpContext.Response.StatusCode = errorCode;
 
