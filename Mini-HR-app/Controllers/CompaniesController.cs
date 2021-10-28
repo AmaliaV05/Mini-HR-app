@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Mini_HR_app.Exceptions;
 using Mini_HR_app.Extensions;
 using Mini_HR_app.Helpers;
 using Mini_HR_app.Models;
@@ -37,11 +34,6 @@ namespace Mini_HR_app.Controllers
         {
             var companies = await _companyService.GetActiveCompanies(companyParams);
 
-            if (companies == null)
-            {
-                return BadRequest("Max year of establishment cannot be less than min year of establishment");
-            }
-
             Response.AddPaginationHeader(companies.CurrentPage, companies.PageSize, companies.TotalCount, companies.TotalPages);
 
             return companies
@@ -59,13 +51,7 @@ namespace Mini_HR_app.Controllers
         {
             var company = await _companyService.GetCompanyDetails(idCompany);
 
-            if (company == null)
-            {
-                return NotFound("The company does not exist");
-            }
-
-            var companyViewModel = _mapper.Map<CompanyViewModel>(company);
-            return companyViewModel;
+            return _mapper.Map<CompanyViewModel>(company);
         }
 
         /// <summary>
@@ -79,11 +65,6 @@ namespace Mini_HR_app.Controllers
         {
             var company = await _companyService.GetActiveEmployees(idCompany);
 
-            if (company == null)
-            {
-                return NotFound("The company does not exist");
-            }
-
             return _mapper.Map<CompanyWithEmployeesViewModel>(company);
         }
 
@@ -96,20 +77,6 @@ namespace Mini_HR_app.Controllers
         [HttpGet("{idCompany}/Employee/{idEmployee}")]
         public async Task<ActionResult<CompanyWithEmployeesViewModel>> GetEmployeeDetails(int idCompany, int idEmployee)
         {
-            var checkCompany = await _companyService.CheckCompanyIsActive(idCompany);
-
-            if (!checkCompany)
-            {
-                return BadRequest("Company does not exist");
-            }
-
-            var checkEmployee = await _companyService.CheckEmployeeIsActive(idEmployee);
-
-            if (!checkEmployee)
-            {
-                return BadRequest("Employee does not exist");
-            }
-
             var employees = await _companyService.GetEmployeeDetails(idCompany, idEmployee);
 
             return _mapper.Map<CompanyWithEmployeesViewModel>(employees);
@@ -124,28 +91,14 @@ namespace Mini_HR_app.Controllers
         [HttpPut("{idCompany}")]
         public async Task<ActionResult> PutCompanyDetails(int idCompany, CompanyViewModel companyViewModel)
         {
-            var company = _mapper.Map<Company>(companyViewModel);
+            _ = new Company();
+            Company company;            
 
-            try
-            {
-                company = _mapper.Map<Company>(companyViewModel);
-            }
-            catch (InvalidCompanyException icEx)
-            {
-                Console.WriteLine(icEx.Message);
-            }
+            company = _mapper.Map<Company>(companyViewModel);
 
-            if (company.Id != idCompany)
-            {
-                return BadRequest("Company id does not match the input id");
-            }
+            await _companyService.PutCompanyDetails(idCompany, company);
 
-            var companyEditSuccesful = await _companyService.PutCompanyDetails(idCompany, company);
-
-            if (!companyEditSuccesful)
-            {
-                return NotFound();
-            }
+            await _companyService.SaveChangesAsync();
 
             return NoContent();
         }
@@ -162,17 +115,9 @@ namespace Mini_HR_app.Controllers
         {
             var employee = _mapper.Map<Employee>(employeeWithDetailsViewModel);
 
-            if (idEmployee != employee.Id)
-            {
-                return BadRequest();
-            }
+            await _companyService.PutEmployeeDetails(idCompany, idEmployee, employee);
 
-            var employeeEditSuccesfull = await _companyService.PutEmployeeDetails(idCompany, idEmployee, employee);
-
-            if (!employeeEditSuccesfull)
-            {
-                return NotFound();
-            }
+            await _companyService.SaveChangesAsync();
 
             return NoContent();
         }
@@ -185,19 +130,9 @@ namespace Mini_HR_app.Controllers
         [HttpPut("{idCompany}/Change-Status-To-Inactive")]
         public async Task<ActionResult> PutCompanyStatusToInactive(int idCompany)
         {
-            var checkCompany = await _companyService.CheckCompanyIsActive(idCompany);
+            await _companyService.PutCompanyStatusToInactive(idCompany);
 
-            if (!checkCompany)
-            {
-                return BadRequest("Company does not exist");
-            }
-
-            var companyEditSuccesful = await _companyService.PutCompanyStatusToInactive(idCompany);
-
-            if (!companyEditSuccesful)
-            {
-                return BadRequest("The company still has employees");
-            }
+            await _companyService.SaveChangesAsync();
 
             return NoContent();
         }
@@ -211,26 +146,9 @@ namespace Mini_HR_app.Controllers
         [HttpPut("{idCompany}/Employee-Change-Status-To-Inactive/{idEmployee}")]
         public async Task<ActionResult> PutEmployeeStatusToInactive(int idCompany, int idEmployee)
         {
-            var checkCompany = await _companyService.CheckCompanyIsActive(idCompany);
+            await _companyService.PutEmployeeStatusToInactive(idCompany, idEmployee);
 
-            if (!checkCompany)
-            {
-                return BadRequest("Company does not exist");
-            }
-
-            var checkEmployee = await _companyService.CheckEmployeeIsActive(idEmployee);
-
-            if (!checkEmployee)
-            {
-                return BadRequest("Employee does not exist");
-            }
-
-            var company = await _companyService.PutEmployeeStatusToInactive(idCompany, idEmployee);
-
-            if (!company)
-            {
-                return BadRequest("The employee is not active at the chosen company");
-            }
+            await _companyService.SaveChangesAsync();
 
             return NoContent();
         }
@@ -245,12 +163,9 @@ namespace Mini_HR_app.Controllers
         {
             var company = _mapper.Map<Company>(companyViewModel);
 
-            var checkCompany = await _companyService.PostCompany(company);
+            await _companyService.PostCompany(company);
 
-            if (!checkCompany)
-            {
-                return BadRequest("Company already exists");
-            }
+            await _companyService.SaveChangesAsync();
 
             return NoContent();
         }
@@ -266,12 +181,9 @@ namespace Mini_HR_app.Controllers
         {
             var employee = _mapper.Map<Employee>(employeeWithDetailsViewModel);
 
-            var checkCompany = await _companyService.PostEmployeeForCompany(idCompany, employee);
+            await _companyService.PostEmployeeForCompany(idCompany, employee);
 
-            if (!checkCompany)
-            {
-                return NotFound("Company does not exist");
-            }
+            await _companyService.SaveChangesAsync();
 
             return NoContent();
         }
