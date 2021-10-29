@@ -7,8 +7,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Mini_HR_app.BusinessLogic.Interfaces;
+using Mini_HR_app.BusinessLogic.Services;
 using Mini_HR_app.Data;
 using Mini_HR_app.Extensions;
+using Mini_HR_app.Helpers;
 using Mini_HR_app.Services;
 using System;
 using System.IO;
@@ -89,9 +92,13 @@ namespace Mini_HR_app
                 c.IncludeXmlComments(xmlPath);
             });
 
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthManagementService, AuthManagementService>();
             services.AddScoped<ICompaniesService, CompaniesService>();
+            services.AddScoped<IPhotoService, PhotoService>();
+            services.AddScoped<IEmployeesService, EmployeesService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
