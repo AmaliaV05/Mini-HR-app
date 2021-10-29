@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Mini_HR_app.Data.Models;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Mini_HR_app.Models
 {
@@ -15,5 +14,6 @@ namespace Mini_HR_app.Models
         public string BirthPlace { get; set; }
         public List<Company> Companies { get; set; }
         public List<CompanyEmployee> CompanyEmployees { get; set; }
+        public Photo Photo { get; set; }
     }
 }

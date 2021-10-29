@@ -1,6 +1,4 @@
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0\Mini-HR-app.BusinessLogic.deps.json
-D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0\Mini-HR-app.BusinessLogic.runtimeconfig.json
-D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0\Mini-HR-app.BusinessLogic.runtimeconfig.dev.json
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0\Mini-HR-app.BusinessLogic.dll
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0\ref\Mini-HR-app.BusinessLogic.dll
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\bin\Debug\net5.0\Mini-HR-app.BusinessLogic.pdb
@@ -14,4 +12,3 @@ D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\obj\Debug\net5.0
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\obj\Debug\net5.0\Mini-HR-app.BusinessLogic.dll
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\obj\Debug\net5.0\ref\Mini-HR-app.BusinessLogic.dll
 D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\obj\Debug\net5.0\Mini-HR-app.BusinessLogic.pdb
-D:\Projects\Projects .NET\Mini-HR-app\Mini-HR-app.BusinessLogic\obj\Debug\net5.0\Mini-HR-app.BusinessLogic.genruntimeconfig.cache
