@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Mini_HR_app.Data.Models;
 using Mini_HR_app.Models;
 
 namespace Mini_HR_app.Data
@@ -13,6 +14,8 @@ namespace Mini_HR_app.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<CompanyEmployee> CompanyEmployee { get; set; }
+        public DbSet<Photo> Photos { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

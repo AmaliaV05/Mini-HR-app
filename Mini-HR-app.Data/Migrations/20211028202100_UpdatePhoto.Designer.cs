@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Mini_HR_app.Data;
 
 namespace Mini_HR_app.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211028202100_UpdatePhoto")]
+    partial class UpdatePhoto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,22 +50,22 @@ namespace Mini_HR_app.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "dd5d1f66-90eb-4a0b-b08a-6c577095dea5",
-                            ConcurrencyStamp = "e62b646b-e935-48f5-8935-9b655ce10e90",
+                            Id = "4f519548-c2ee-4c49-9c0d-93a8ea493913",
+                            ConcurrencyStamp = "40486f9e-ac1a-4ff8-8e61-14129e7dfeca",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "6929ed99-20a3-494f-8d60-ea8fbaa213f2",
-                            ConcurrencyStamp = "d9b193dc-9911-403d-a14c-314ff4677952",
+                            Id = "9f04932a-3e40-4221-ae72-3de609383815",
+                            ConcurrencyStamp = "f6301c52-5234-416a-994e-90aeee5e5448",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "445de42b-c191-45d5-b7f2-7e1df24a33dd",
-                            ConcurrencyStamp = "baf7c25a-ba39-4144-992c-14c30f25f2bf",
+                            Id = "13265f41-12fe-434a-bd29-260e08887979",
+                            ConcurrencyStamp = "84ae0941-30bf-495b-a4e2-eb4e8fb1399d",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         });
@@ -171,6 +173,30 @@ namespace Mini_HR_app.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Data.Models.Photo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PublicId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId")
+                        .IsUnique();
+
+                    b.ToTable("Photos");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Models.AppUser", b =>
@@ -400,6 +426,17 @@ namespace Mini_HR_app.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Mini_HR_app.Data.Models.Photo", b =>
+                {
+                    b.HasOne("Mini_HR_app.Models.Employee", "Employee")
+                        .WithOne("Photo")
+                        .HasForeignKey("Mini_HR_app.Data.Models.Photo", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("Mini_HR_app.Models.CompanyEmployee", b =>
                 {
                     b.HasOne("Mini_HR_app.Models.Company", "Company")
@@ -427,6 +464,8 @@ namespace Mini_HR_app.Migrations
             modelBuilder.Entity("Mini_HR_app.Models.Employee", b =>
                 {
                     b.Navigation("CompanyEmployees");
+
+                    b.Navigation("Photo");
                 });
 #pragma warning restore 612, 618
         }

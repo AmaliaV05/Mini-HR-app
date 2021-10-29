@@ -67,4 +67,11 @@ namespace Mini_HR_app.Exceptions
         protected PostEmployeeException(System.Runtime.Serialization.SerializationInfo info,
         System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
+
+    public class CloudinaryException : Exception
+    {
+        public CloudinaryException(string message) : base(message) { }
+        protected CloudinaryException(System.Runtime.Serialization.SerializationInfo info,
+        System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+    }
 }

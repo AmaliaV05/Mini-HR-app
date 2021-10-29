@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Mini_HR_app.Data.Models;
 using Mini_HR_app.Models;
 using Mini_HR_app.ViewModels;
 using System;
@@ -15,6 +16,8 @@ namespace Mini_HR_app
             CreateMap<Company, CompanyViewModel>().ReverseMap();
             CreateMap<Company, CompanyWithEmployeesViewModel>();
             CreateMap<Employee, EmployeeWithDetailsViewModel>().ReverseMap();
+            CreateMap<Employee, EmployeeWithPhotoViewModel>();
+            CreateMap<Photo, PhotoViewModel>().ReverseMap();
         }
     }
 }
