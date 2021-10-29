@@ -67,6 +67,11 @@ namespace Mini_HR_app.Extensions
                 _logger.LogError($"Creating a new employee exception has been thrown: {peEx}");
                 await HandleExceptionAsync(httpContext, peEx);
             }
+            catch (CloudinaryException cEx)
+            {
+                _logger.LogError($"Cloudinary exception has been thrown: {cEx}");
+                await HandleExceptionAsync(httpContext, cEx);
+            }
             catch (DbUpdateConcurrencyException ducEx)
             {
                 _logger.LogError($"A database update concurrency exception has been thrown: {ducEx}");
@@ -130,6 +135,9 @@ namespace Mini_HR_app.Extensions
                     break;
                 case PostEmployeeException:
                     msg = "Employee creation violation from the custom middleware";
+                    break;
+                case CloudinaryException:
+                    msg = "Cloudinary operation violation from the custom middleware";
                     break;
                 case DbUpdateConcurrencyException:
                     msg = "Database update concurrency violation from the custom middleware";
