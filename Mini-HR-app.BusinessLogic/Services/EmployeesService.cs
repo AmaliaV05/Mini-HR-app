@@ -12,13 +12,15 @@ namespace Mini_HR_app.BusinessLogic.Services
 {
     public class EmployeesService : IEmployeesService
     {
-        public readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IPhotoService _photoService;
+        private readonly IEmailService _emailService;
 
-        public EmployeesService(ApplicationDbContext context, IPhotoService photoService)
+        public EmployeesService(ApplicationDbContext context, IPhotoService photoService, IEmailService emailService)
         {
             _context = context;
             _photoService = photoService;
+            _emailService = emailService;
         }
 
         public async Task AddPhoto(int idEmployee, IFormFile file)
@@ -65,6 +67,7 @@ namespace Mini_HR_app.BusinessLogic.Services
         {
             var employee = await _context.Employees
                 .Where(e => e.Id == idEmployee)
+                .Include(e => e.Photo)
                 .FirstAsync();
 
             if (employee == null)
@@ -89,6 +92,25 @@ namespace Mini_HR_app.BusinessLogic.Services
             }
 
             _context.Photos.Remove(photo);
+        }
+
+        public async Task PostEmployeeContact(int idEmployee, Contact contact)
+        {
+            var employee = await _context.Employees.
+                Where(e => e.Id == idEmployee)
+                .Include(e => e.Contacts)
+                .FirstOrDefaultAsync();
+
+            if (contact == null)
+            {
+                throw new PostEmployeeException($"Contact details for employee with id: {idEmployee} cannot be empty");
+            }
+
+            employee.Contacts.Add(contact);
+            await SaveChangesAsync();           
+
+            await _emailService.SendEmail(contact.Email, "Welcome", "<h2>" + employee.Name + " " + employee.Surname
+                + ", you are now officially part of our team at Maze!</h2>");
         }
 
         public async Task<bool> SaveChangesAsync()

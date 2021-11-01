@@ -13,6 +13,7 @@ using Mini_HR_app.Data;
 using Mini_HR_app.Extensions;
 using Mini_HR_app.Helpers;
 using Mini_HR_app.Services;
+using SendGrid.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Reflection;
@@ -45,7 +46,7 @@ namespace Mini_HR_app
             });
             
             services.AddAutoMapper(typeof(MappingProfile));
-            
+
             services.AddDbContext<ApplicationDbContext>(options =>
                options.UseSqlServer(
                    Configuration.GetConnectionString("DefaultConnection")));
@@ -92,13 +93,14 @@ namespace Mini_HR_app
                 c.IncludeXmlComments(xmlPath);
             });
 
-            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));         
 
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthManagementService, AuthManagementService>();
             services.AddScoped<ICompaniesService, CompaniesService>();
             services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IEmployeesService, EmployeesService>();
+            services.AddTransient<IEmailService, EmailService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Mini_HR_app.BusinessLogic.Interfaces;
 using Mini_HR_app.Data;
 using Mini_HR_app.Models;
 using Mini_HR_app.ViewModels.Authentication;
@@ -15,13 +16,15 @@ namespace Mini_HR_app.Services
         private readonly UserManager<User> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
 
         public AuthManagementService(ApplicationDbContext context, UserManager<User> userManager,
-            ITokenService tokenService)
+            ITokenService tokenService, IEmailService emailService)
         {
             _userManager = userManager;
             _context = context;
             _tokenService = tokenService;
+            _emailService = emailService;
         }
 
         public async Task<ServiceResponse<RegisterResponse, IEnumerable<IdentityError>>> RegisterUser(RegisterUserRequest registerUserRequest)
@@ -47,6 +50,9 @@ namespace Mini_HR_app.Services
             await _userManager.AddToRoleAsync(user, "Member");
 
             serviceResponse.ResponseError = result.Errors;
+
+            await _emailService.SendEmail(registerUserRequest.Email, "New registration", "<h2>Hey " + registerUserRequest.UserName + "</h2>");
+
             return serviceResponse;
         }
 
