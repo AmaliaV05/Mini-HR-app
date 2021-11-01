@@ -65,7 +65,7 @@ namespace Mini_HR_app.Controllers
             return NoContent();
         }
 
-        [HttpPost("Contact-Details")]
+        [HttpPost("{idEmployee}/Contact-Details")]
         public async Task<ActionResult> PostEmployeeContact(int idEmployee, Contact contact)
         {
             await _employeesService.PostEmployeeContact(idEmployee, contact);

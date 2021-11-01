@@ -44,14 +44,12 @@ namespace Mini_HR_app.Services
             if (result.Succeeded)
             {
                 serviceResponse.ResponseOk = new RegisterResponse { ConfirmationToken = user.SecurityStamp };
+                await _userManager.AddToRoleAsync(user, "Member");
+                await _emailService.SendEmail(registerUserRequest.Email, "New registration", "<h2>Hey " + registerUserRequest.UserName + "</h2>");
                 return serviceResponse;
-            }
+            }           
 
-            await _userManager.AddToRoleAsync(user, "Member");
-
-            serviceResponse.ResponseError = result.Errors;
-
-            await _emailService.SendEmail(registerUserRequest.Email, "New registration", "<h2>Hey " + registerUserRequest.UserName + "</h2>");
+            serviceResponse.ResponseError = result.Errors;           
 
             return serviceResponse;
         }

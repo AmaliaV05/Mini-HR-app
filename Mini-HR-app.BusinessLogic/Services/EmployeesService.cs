@@ -110,7 +110,7 @@ namespace Mini_HR_app.BusinessLogic.Services
             await SaveChangesAsync();           
 
             await _emailService.SendEmail(contact.Email, "Welcome", "<h2>" + employee.Name + " " + employee.Surname
-                + ", you are now officially part of our team at Maze!</h2>");
+                + ", you are now officially part of our group at Maze!</h2>");
         }
 
         public async Task<bool> SaveChangesAsync()
