@@ -15,5 +15,6 @@ namespace Mini_HR_app.Models
         public List<Company> Companies { get; set; }
         public List<CompanyEmployee> CompanyEmployees { get; set; }
         public Photo Photo { get; set; }
+        public List<Contact> Contacts { get; set; }
     }
 }

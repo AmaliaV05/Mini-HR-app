@@ -185,7 +185,10 @@ namespace Mini_HR_app.Controllers
 
             await _companyService.SaveChangesAsync();
 
-            return NoContent();
+            var employeeToReturn = await _companyService.FindEmployeeId(employee);
+            var employeeToReturnViewModel = _mapper.Map<EmployeeWithDetailsViewModel>(employeeToReturn);
+
+            return CreatedAtAction("GetEmployeeDetails", new { idC = idCompany, idEmployee = employeeToReturn.Id }, employeeToReturnViewModel);
         }
     }
 }

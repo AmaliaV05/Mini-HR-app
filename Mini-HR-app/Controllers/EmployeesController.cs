@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Mini_HR_app.BusinessLogic.Interfaces;
+using Mini_HR_app.Data.Models;
 using Mini_HR_app.ViewModels;
 
 namespace Mini_HR_app.Controllers
@@ -61,6 +62,14 @@ namespace Mini_HR_app.Controllers
 
             await _employeesService.SaveChangesAsync();
 
+            return NoContent();
+        }
+
+        [HttpPost("Contact-Details")]
+        public async Task<ActionResult> PostEmployeeContact(int idEmployee, Contact contact)
+        {
+            await _employeesService.PostEmployeeContact(idEmployee, contact);
+            
             return NoContent();
         }
     }

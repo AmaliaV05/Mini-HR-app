@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Mini_HR_app.BusinessLogic.Interfaces;
 using Mini_HR_app.Data;
 using Mini_HR_app.Exceptions;
 using Mini_HR_app.Helpers;
@@ -11,10 +12,12 @@ namespace Mini_HR_app.Services
     public class CompaniesService : ICompaniesService
     {
         public readonly ApplicationDbContext _context;
+        public readonly IEmailService _emailService;
 
-        public CompaniesService(ApplicationDbContext context)
+        public CompaniesService(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<PagedList<Company>> GetActiveCompanies(CompanyParams companyParams)
@@ -89,6 +92,13 @@ namespace Mini_HR_app.Services
             }
 
             return employee;
+        }
+
+        public async Task<Employee> FindEmployeeId(Employee employee)
+        {
+            var e = await _context.Employees.Where(e => e.Ssn == employee.Ssn).FirstAsync();
+
+            return e;
         }
 
         private async Task CheckCompanyIsActive(int idCompany)
@@ -219,6 +229,7 @@ namespace Mini_HR_app.Services
                 await _context.Employees.AddAsync(employee);
                 await _context.SaveChangesAsync();
             }
+            else throw new PostEmployeeException($"Employee already exists");
 
             var existingCompany = await _context.Companies
                 .Include(c => c.Employees)
@@ -241,7 +252,7 @@ namespace Mini_HR_app.Services
                     Employee = employee,
                     Status = true
                 });
-            }
+            }            
         }        
     }
 }

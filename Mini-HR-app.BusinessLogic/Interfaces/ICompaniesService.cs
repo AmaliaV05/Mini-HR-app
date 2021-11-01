@@ -13,6 +13,7 @@ namespace Mini_HR_app.Services
         Task<Company> GetCompanyDetails(int idCompany);
         Task<Company> GetActiveEmployees(int idCompany);
         Task<Company> GetEmployeeDetails(int idCompany, int idEmployee);
+        Task<Employee> FindEmployeeId(Employee employee);
         Task PutCompanyDetails(int idCompany, Company company);
         Task PutEmployeeDetails(int idCompany, int idEmployee, Employee employee);
         Task PutCompanyStatusToInactive(int idCompany);

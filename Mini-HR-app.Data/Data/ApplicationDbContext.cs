@@ -15,6 +15,7 @@ namespace Mini_HR_app.Data
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<CompanyEmployee> CompanyEmployee { get; set; }
         public DbSet<Photo> Photos { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
