@@ -4,6 +4,7 @@ using Mini_HR_app.Data;
 using Mini_HR_app.Exceptions;
 using Mini_HR_app.Helpers;
 using Mini_HR_app.Models;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -38,15 +39,21 @@ namespace Mini_HR_app.Services
                 query = query.Where(f => f.CompanyName.ToLower().Contains(companyParams.CompanyName.ToLower()));
             }
 
-            //sort by company name, then by date of establishment
-            if (!string.IsNullOrEmpty(companyParams.SortByName) && !string.IsNullOrEmpty(companyParams.SortByDate))
-            {
-                query = query.OrderBy(x => EF.Property<string>(x, companyParams.SortByName))
-                .ThenBy(x => EF.Property<string>(x, companyParams.SortByDate));
-            }
+            //sort by company name/date of establishment/none
+            ApplySort(query, companyParams.Property);
 
             return await PagedList<Company>.CreateAsync(query.AsNoTracking(),
                 companyParams.PageNumber, companyParams.PageSize);
+        }
+
+        private static IQueryable<Company> ApplySort(IQueryable<Company> query, string property)
+        {
+            return property switch
+            {
+                "Name" => query.OrderBy(p => p.CompanyName),
+                "Date" => query.OrderBy(p => p.DateOfEstablishment),
+                _ => query,
+            };
         }
 
         public async Task<Company> GetCompanyDetails(int idCompany)
