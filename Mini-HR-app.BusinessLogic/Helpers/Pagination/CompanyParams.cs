@@ -11,8 +11,7 @@ namespace Mini_HR_app.Helpers
         public int MaxYear { get; set; } = DateTime.UtcNow.Year;
         public bool ValidYearRange => MaxYear > MinYear;
 
-        public string CompanyName { get; set; } 
-        public string SortByName { get; set; }
-        public string SortByDate { get; set; }
+        public string CompanyName { get; set; }
+        public string Property { get; set; }
     }
 }
