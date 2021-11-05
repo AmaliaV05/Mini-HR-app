@@ -229,3 +229,6 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+#appsettings.development
+Mini-HR-app/appsettings.Development.json
