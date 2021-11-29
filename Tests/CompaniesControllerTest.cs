@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 /*using AutoMapper;
-=======
-using AutoMapper;
->>>>>>> b0bf4b5f54faf14b9f55ad4f07a42840baa7ce55
 using GenFu;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -39,20 +35,12 @@ namespace Tests
     {
         private readonly ApplicationDbContext _context;
 
-<<<<<<< HEAD
-        *//*[Fact]
-=======
-        /*[Fact]
->>>>>>> b0bf4b5f54faf14b9f55ad4f07a42840baa7ce55
+        [Fact]
         public void AutoMapper_Configuration_IsValid()
         {
             var config = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>());
             config.AssertConfigurationIsValid();
-<<<<<<< HEAD
-        }*//*
-=======
-        }*/
->>>>>>> b0bf4b5f54faf14b9f55ad4f07a42840baa7ce55
+        }
 
         [Fact]
         public async Task GetCompanies_ReturnsAnActionResult_WithAListOfCompanies()
@@ -75,11 +63,7 @@ namespace Tests
             Assert.Equal(2, model.Count());
         }
 
-<<<<<<< HEAD
-        *//*[Theory]
-=======
-        /*[Theory]
->>>>>>> b0bf4b5f54faf14b9f55ad4f07a42840baa7ce55
+        [Theory]
         [InlineData(12)]
         [InlineData(120)]
         public async Task GetCompanyDetails_ReturnsAnActionResult_WithDetailsOfACompany(int id)
@@ -185,13 +169,6 @@ namespace Tests
             yield return new object[] { 2, new Company { CompanyName = "Mancini", FiscalCode = "RO 38514091" } };
         }
 
-<<<<<<< HEAD
-    }*//*
+
     }
-}
-*/
-=======
-    }*/
-    }
-}
->>>>>>> b0bf4b5f54faf14b9f55ad4f07a42840baa7ce55
+}*/
