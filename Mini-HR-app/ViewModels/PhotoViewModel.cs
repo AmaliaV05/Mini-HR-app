@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace Mini_HR_app.ViewModels
 {
-    public class CompanyWithEmployeesViewModel
+    public class PhotoViewModel
     {
         public int Id { get; set; }
-        public string CompanyName { get; set; }
-        public List<EmployeeWithDetailsViewModel> Employees { get; set; }
+        public string Url { get; set; }
     }
 }

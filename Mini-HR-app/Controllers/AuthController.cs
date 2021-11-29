@@ -31,7 +31,7 @@ namespace Mini_HR_app.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<AppUser>> RegisterUser(RegisterUserRequest registerUserRequest)
         {
-            if (await _context.AppUsers.AnyAsync(x => x.Username == registerUserRequest.Username.ToLower()))
+            if (await _context.AppUsers.AnyAsync(x => x.Username == registerUserRequest.UserName.ToLower()))
             {
                 return BadRequest("Username is taken!");
             }
@@ -40,7 +40,7 @@ namespace Mini_HR_app.Controllers
 
             var user = new AppUser
             {
-                Username = registerUserRequest.Username.ToLower(),
+                Username = registerUserRequest.UserName.ToLower(),
                 PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerUserRequest.Password)),
                 PasswordSalt = hmac.Key
             };
@@ -66,7 +66,7 @@ namespace Mini_HR_app.Controllers
 
             var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginUserRequest.Password));
 
-            if(computedHash.Length != user.PasswordHash.Length)
+            if (computedHash.Length != user.PasswordHash.Length)
             {
                 return Unauthorized("Invalid Password");
             }
@@ -88,7 +88,7 @@ namespace Mini_HR_app.Controllers
             return loggedInUser;
         }
 
-        public string CreateToken(AppUser user)
+        private string CreateToken(AppUser user)
         {
             var claims = new List<Claim>
             {

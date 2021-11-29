@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Mini_HR_app.ViewModels
+namespace Mini_HR_app.Models
 {
-    public class CompanyViewModel
+    public class Company
     {
         public int Id { get; set; }
         public string CompanyName { get; set; }
@@ -17,5 +17,8 @@ namespace Mini_HR_app.ViewModels
         public string NaceCode { get; set; }
         public string Activity { get; set; }
         public string ActivityDescription { get; set; }
+        public bool Status { get; set; }
+        public List<Employee> Employees { get; set; }
+        public List<CompanyEmployee> CompanyEmployees { get; set; }
     }
 }
