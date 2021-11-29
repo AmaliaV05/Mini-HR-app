@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,7 +12,6 @@ using Mini_HR_app.Data;
 using Mini_HR_app.Extensions;
 using Mini_HR_app.Helpers;
 using Mini_HR_app.Services;
-using SendGrid.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Reflection;
