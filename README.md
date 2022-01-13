@@ -5,8 +5,8 @@
 * [Features](#features)
 
 ## General info
-ASP.NET Web API - 
-This project is a HR application with authentication.
+ASP.NET Web API - This project is a HR application with authentication. <br />
+[Frontend project](https://github.com/AmaliaV05/Mini-HR-app-angular)
 	
 ## Technologies
 Project is created with:
