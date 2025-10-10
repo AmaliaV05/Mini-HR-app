@@ -48,22 +48,22 @@ namespace Mini_HR_app.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ce7c669a-2d1f-4501-8d14-579773274405",
-                            ConcurrencyStamp = "b006d53d-b19a-4bb9-b596-92bd1585cb89",
+                            Id = "e4afbe47-571b-45a8-8019-25431dadf80d",
+                            ConcurrencyStamp = "9d428364-6364-4f17-8f43-3269d7e2fc50",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "b2892710-2368-4926-96f7-8064ac85d6be",
-                            ConcurrencyStamp = "1bcdc10f-3f66-49d1-998b-298b804cb9b1",
+                            Id = "1148e8f6-d753-42de-81d0-c2cf9662447b",
+                            ConcurrencyStamp = "5927e66f-c510-4c85-89c3-397a79b60421",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "819a3569-a8f1-4b42-a0bd-304bf00147c3",
-                            ConcurrencyStamp = "8044f7da-1f7c-49b6-b431-a8b211c67b21",
+                            Id = "371a40a5-ea5b-4019-ab99-8660cf0b4dbc",
+                            ConcurrencyStamp = "dce69349-7ec8-4ee9-bff4-b1c502552c7b",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         });
@@ -171,6 +171,39 @@ namespace Mini_HR_app.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("Mini_HR_app.Data.Models.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Action")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ChangedFields")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserRole")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("Mini_HR_app.Data.Models.Contact", b =>

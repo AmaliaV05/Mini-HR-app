@@ -13,7 +13,6 @@ using Mini_HR_app.Data;
 using Mini_HR_app.Extensions;
 using Mini_HR_app.Helpers;
 using Mini_HR_app.Services;
-using SendGrid.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Reflection;
@@ -50,6 +49,8 @@ namespace Mini_HR_app
             services.AddDbContext<ApplicationDbContext>(options =>
                options.UseSqlServer(
                    Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddHttpContextAccessor();
 
             services.AddAuthentication();
             services.AddIdentityService();
@@ -101,6 +102,9 @@ namespace Mini_HR_app
             services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IEmployeesService, EmployeesService>();
             services.AddTransient<IEmailService, EmailService>();
+            services.AddSingleton<AuditTrailFactory>();
+            services.AddSingleton<AuditTrailService>();            
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -121,6 +125,7 @@ namespace Mini_HR_app
 
             app.UseCors(MyAllowSpecificOrigins);
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

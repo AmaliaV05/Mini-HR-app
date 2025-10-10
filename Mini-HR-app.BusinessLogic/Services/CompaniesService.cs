@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Mini_HR_app.BusinessLogic.Interfaces;
+using Mini_HR_app.BusinessLogic.Models;
+using Mini_HR_app.BusinessLogic.Services;
 using Mini_HR_app.Data;
+using Mini_HR_app.Data.Models;
+using Mini_HR_app.Data.Models.Constants.Utils;
 using Mini_HR_app.Exceptions;
 using Mini_HR_app.Helpers;
 using Mini_HR_app.Models;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,13 +15,17 @@ namespace Mini_HR_app.Services
 {
     public class CompaniesService : ICompaniesService
     {
-        public readonly ApplicationDbContext _context;
-        public readonly IEmailService _emailService;
+        private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
+        private readonly AuditTrailService _auditTrailService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public CompaniesService(ApplicationDbContext context, IEmailService emailService)
+        public CompaniesService(ApplicationDbContext context, IEmailService emailService, ICurrentUserService currentUserService)
         {
             _context = context;
             _emailService = emailService;
+            _currentUserService = currentUserService;
+            _auditTrailService = AuditTrailService.Instance(new AuditTrailFactory());
         }
 
         public async Task<PagedList<Company>> GetActiveCompanies(CompanyParams companyParams)
@@ -134,7 +141,12 @@ namespace Mini_HR_app.Services
 
             company.Status = true;
 
-            _context.Entry(company).State = EntityState.Modified;                   
+            _context.Entry(company).State = EntityState.Modified;
+
+            // TODO: add changed fields
+            CreateAuditLog(AuditAction.Edit, nameof(Company), company.Id);
+
+            // FIXME: wrap in a database transaction to avoid saving audit log if update fails
         }
 
         public async Task<bool> SaveChangesAsync()
@@ -155,6 +167,11 @@ namespace Mini_HR_app.Services
             }
 
             _context.Entry(employee).State = EntityState.Modified;
+
+            // TODO: add changed fields
+            CreateAuditLog(AuditAction.Edit, nameof(Employee), employee.Id);
+
+            // FIXME: wrap in a database transaction to avoid saving audit log if update fails
         }
 
         public async Task PutCompanyStatusToInactive(int idCompany)
@@ -174,6 +191,11 @@ namespace Mini_HR_app.Services
             company.Status = false;
 
             _context.Entry(company).Property(x => x.Status).IsModified = true;
+
+            // TODO: add changed fields
+            CreateAuditLog(AuditAction.ChangeStatus, nameof(Company), company.Id);
+
+            // FIXME: wrap in a database transaction to avoid saving audit log if update fails
         }
 
         public async Task PutEmployeeStatusToInactive(int idCompany, int idEmployee)
@@ -197,6 +219,11 @@ namespace Mini_HR_app.Services
             employee.Status = false;
 
             _context.Entry(employee).Property(x => x.Status).IsModified = true;
+
+            // TODO: add changed fields
+            CreateAuditLog(AuditAction.ChangeStatus, nameof(Employee), idEmployee);
+
+            // FIXME: wrap in a database transaction to avoid saving audit log if update fails
         }
 
         public async Task PostCompany(Company company)
@@ -213,6 +240,10 @@ namespace Mini_HR_app.Services
             company.Status = true;
 
             await _context.Companies.AddAsync(company);
+
+            CreateAuditLog(AuditAction.Create, nameof(Company), company.Id);
+
+            // FIXME: wrap in a database transaction to avoid saving audit log if creation fails
         }
 
         public async Task PostEmployeeForCompany(int idCompany, Employee employee)
@@ -259,7 +290,20 @@ namespace Mini_HR_app.Services
                     Employee = employee,
                     Status = true
                 });
-            }            
-        }        
+            }
+
+            CreateAuditLog(AuditAction.Create, nameof(Employee), employee.Id);
+
+            // FIXME: wrap in a database transaction to avoid saving audit log if creation fails
+        }
+
+        private void CreateAuditLog(string action, string entityType, int entityId, string changedFields = null)
+        {
+            CurrentUser currentUser = _currentUserService.GetCurrentUser();
+
+            AuditLog auditLog = _auditTrailService.LogChange(currentUser.Id, currentUser.MainRole, action, entityType, entityId, changedFields);
+
+            _context.AuditLogs.Add(auditLog);
+        }
     }
 }

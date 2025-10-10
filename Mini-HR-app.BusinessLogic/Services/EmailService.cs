@@ -1,10 +1,6 @@
-﻿using System;
-using SendGrid;
+﻿using SendGrid;
 using SendGrid.Helpers.Mail;
 using System.Threading.Tasks;
-using Mini_HR_app.Models;
-using Microsoft.AspNetCore.Identity;
-using System.Linq;
 using Mini_HR_app.BusinessLogic.Interfaces;
 using Microsoft.Extensions.Configuration;
 

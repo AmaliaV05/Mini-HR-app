@@ -1,10 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Mini_HR_app.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Mini_HR_app.Extensions
 {

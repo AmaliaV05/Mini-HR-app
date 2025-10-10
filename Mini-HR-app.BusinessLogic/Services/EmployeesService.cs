@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Mini_HR_app.BusinessLogic.Interfaces;
+using Mini_HR_app.BusinessLogic.Models;
 using Mini_HR_app.Data;
 using Mini_HR_app.Data.Models;
+using Mini_HR_app.Data.Models.Constants.Utils;
 using Mini_HR_app.Exceptions;
 using Mini_HR_app.Models;
 using System.Linq;
@@ -15,12 +17,16 @@ namespace Mini_HR_app.BusinessLogic.Services
         private readonly ApplicationDbContext _context;
         private readonly IPhotoService _photoService;
         private readonly IEmailService _emailService;
+        private readonly AuditTrailService _auditTrailService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public EmployeesService(ApplicationDbContext context, IPhotoService photoService, IEmailService emailService)
+        public EmployeesService(ApplicationDbContext context, IPhotoService photoService, IEmailService emailService, ICurrentUserService currentUserService)
         {
             _context = context;
             _photoService = photoService;
             _emailService = emailService;
+            _currentUserService = currentUserService;
+            _auditTrailService = AuditTrailService.Instance(new AuditTrailFactory());
         }
 
         public async Task AddPhoto(int idEmployee, IFormFile file)
@@ -46,6 +52,10 @@ namespace Mini_HR_app.BusinessLogic.Services
             };
 
             employee.Photo = photo;
+
+            CreateAuditLog(AuditAction.Create, nameof(Photo), photo.Id);
+
+            // FIXME: wrap in a database transaction to avoid saving audit log if creation fails
         }
 
         public async Task<Employee> GetEmployeePhoto(int idEmployee)
@@ -92,6 +102,10 @@ namespace Mini_HR_app.BusinessLogic.Services
             }
 
             _context.Photos.Remove(photo);
+
+            CreateAuditLog(AuditAction.Delete, nameof(Photo), photo.Id);
+
+            // FIXME: wrap in a database transaction to avoid saving audit log if deletion fails
         }
 
         public async Task PostEmployeeContact(int idEmployee, Contact contact)
@@ -111,11 +125,24 @@ namespace Mini_HR_app.BusinessLogic.Services
 
             await _emailService.SendEmail(contact.Email, "Welcome", "<h2>" + employee.Name + " " + employee.Surname
                 + ", you are now officially part of our group at Maze!</h2>");
+
+            CreateAuditLog(AuditAction.Create, nameof(Contact), contact.Id);
+
+            // FIXME: wrap in a database transaction to avoid saving audit log if creation fails
         }
 
         public async Task<bool> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        private void CreateAuditLog(string action, string entityType, int entityId)
+        {
+            CurrentUser currentUser = _currentUserService.GetCurrentUser();
+
+            AuditLog auditLog = _auditTrailService.LogChange(currentUser.Id, currentUser.MainRole, action, entityType, entityId);
+
+            _context.AuditLogs.Add(auditLog);
         }
     }
 }

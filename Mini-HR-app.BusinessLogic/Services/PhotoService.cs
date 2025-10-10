@@ -32,6 +32,7 @@ namespace Mini_HR_app.BusinessLogic.Services
                 using var stream = file.OpenReadStream();
                 var uploadParams = new ImageUploadParams
                 {
+                    // FIXME: Save photo to a folder
                     File = new FileDescription(file.FileName, stream),
                     Transformation = new Transformation().Height(700).Width(500).Crop("fill").Gravity("face")
                 };

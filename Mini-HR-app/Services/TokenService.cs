@@ -42,6 +42,7 @@ namespace Mini_HR_app.Services
 
         private async Task<bool> ValidateUser(LoginUserRequest loginUserRequest)
         {
+            // FIXME: Change to lookup by email
             _user = await _userManager.FindByNameAsync(loginUserRequest.Username);
             return (_user != null && await _userManager.CheckPasswordAsync(_user, loginUserRequest.Password));
         }
@@ -50,12 +51,14 @@ namespace Mini_HR_app.Services
         {
             var claims = new List<Claim>
             {
-                new Claim("name", _user.UserName)
+                new(ClaimTypes.Name, _user.UserName),
+                new(ClaimTypes.NameIdentifier, _user.Id),
+                new(ClaimTypes.Email, _user.Email)
             };
 
             var roles = await _userManager.GetRolesAsync(_user);
 
-            claims.AddRange(roles.Select(role => new Claim("role", role)));
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             return claims;
         }

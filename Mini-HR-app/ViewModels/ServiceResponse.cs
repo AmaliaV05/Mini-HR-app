@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Mini_HR_app.Services
+﻿namespace Mini_HR_app.Services
 {
     public class ServiceResponse<TResponseOk, TResponseError>
     {

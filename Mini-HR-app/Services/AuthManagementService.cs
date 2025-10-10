@@ -77,7 +77,8 @@ namespace Mini_HR_app.Services
         public async Task<ServiceResponse<LoginResponse, string>> LoginUser(LoginUserRequest loginUserRequest)
         {
             var serviceResponse = new ServiceResponse<LoginResponse, string>();
-            
+
+            // FIXME: Change to lookup by email
             var user = await _userManager.FindByNameAsync(loginUserRequest.Username);            
 
             if (user != null && await _userManager.CheckPasswordAsync(user, loginUserRequest.Password))
