@@ -11,14 +11,14 @@ using System.Threading.Tasks;
 
 namespace Mini_HR_app.Services
 {
-    public class AuthManagementService : IAuthManagementService
+    public class AccountManagementService : IAccountManagementService
     {
         private readonly UserManager<User> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
 
-        public AuthManagementService(ApplicationDbContext context, UserManager<User> userManager,
+        public AccountManagementService(ApplicationDbContext context, UserManager<User> userManager,
             ITokenService tokenService, IEmailService emailService)
         {
             _userManager = userManager;
@@ -29,6 +29,7 @@ namespace Mini_HR_app.Services
 
         public async Task<ServiceResponse<RegisterResponse, IEnumerable<IdentityError>>> RegisterUser(RegisterUserRequest registerUserRequest)
         {
+            // FIXME: set username to fullname
             var user = new User
             {
                 FirstName = registerUserRequest.FirstName,
@@ -44,6 +45,9 @@ namespace Mini_HR_app.Services
             if (result.Succeeded)
             {
                 serviceResponse.ResponseOk = new RegisterResponse { ConfirmationToken = user.SecurityStamp };
+
+                // TODO: If currently logged in user is admin, assign manager role
+                // If currently logged in user is manager, assign member role
                 await _userManager.AddToRoleAsync(user, "Member");
                 await _emailService.SendEmail(registerUserRequest.Email, "New registration", "<h2>Hey " + registerUserRequest.UserName + "</h2>");
                 return serviceResponse;
@@ -79,16 +83,37 @@ namespace Mini_HR_app.Services
             var serviceResponse = new ServiceResponse<LoginResponse, string>();
 
             // FIXME: Change to lookup by email
-            var user = await _userManager.FindByNameAsync(loginUserRequest.Username);            
+            var user = await _userManager.FindByNameAsync(loginUserRequest.Username);
 
-            if (user != null && await _userManager.CheckPasswordAsync(user, loginUserRequest.Password))
+            if (user is null)
+            {
+                serviceResponse.ResponseError = "Username does not exist";
+                return serviceResponse;
+            }
+
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginUserRequest.Password);
+
+            if (!isPasswordValid)
+            {
+                serviceResponse.ResponseError = "Invalid password";
+                return serviceResponse;
+            }
+
+            if (user != null && isPasswordValid)
             {
                 var token = await _tokenService.CreateToken(loginUserRequest);
 
-                serviceResponse.ResponseOk = new LoginResponse { 
+                if (token is null)
+                {
+                    serviceResponse.ResponseError = "Cannot authorize";
+                    return serviceResponse;
+                }
+
+                serviceResponse.ResponseOk = new LoginResponse
+                {
                     Username = loginUserRequest.Username,
-                    Token = new JwtSecurityTokenHandler().WriteToken(token), 
-                    Expiration = token.ValidTo 
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    Expiration = token.ValidTo
                 };
             }
 

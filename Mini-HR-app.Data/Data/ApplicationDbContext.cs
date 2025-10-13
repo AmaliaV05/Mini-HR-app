@@ -12,7 +12,6 @@ namespace Mini_HR_app.Data
         }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Employee> Employees { get; set; }
-        public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<CompanyEmployee> CompanyEmployee { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Contact> Contacts { get; set; }

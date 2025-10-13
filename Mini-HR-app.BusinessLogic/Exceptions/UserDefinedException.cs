@@ -74,4 +74,9 @@ namespace Mini_HR_app.Exceptions
         protected CloudinaryException(System.Runtime.Serialization.SerializationInfo info,
         System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
+
+    public class SendGridException : Exception
+    {
+        public SendGridException(string message) : base(message) { }
+    }
 }

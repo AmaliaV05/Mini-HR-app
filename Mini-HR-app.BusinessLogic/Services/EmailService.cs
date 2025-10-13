@@ -1,14 +1,15 @@
-﻿using SendGrid;
+﻿using Microsoft.Extensions.Configuration;
+using Mini_HR_app.BusinessLogic.Interfaces;
+using Mini_HR_app.Exceptions;
+using SendGrid;
 using SendGrid.Helpers.Mail;
 using System.Threading.Tasks;
-using Mini_HR_app.BusinessLogic.Interfaces;
-using Microsoft.Extensions.Configuration;
 
 namespace Mini_HR_app.BusinessLogic.Services
 {
     public class EmailService : IEmailService
     {
-        private IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
 
         public EmailService(IConfiguration configuration)
         {
@@ -17,12 +18,19 @@ namespace Mini_HR_app.BusinessLogic.Services
 
         public async Task SendEmail(string toEmail, string subject, string content)
         {
-            var apiKey = _configuration["SENDGRID_API_KEY"];
-            var client = new SendGridClient(apiKey);
-            var from = new EmailAddress("mazesoftware@hotmail.com", "Demo email sending");           
-            var to = new EmailAddress(toEmail);
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, content, content);
-            var response = await client.SendEmailAsync(msg);
+            string apiKey = _configuration["SendGrid:SENDGRID_API_DEVELOP_KEY"];
+            SendGridClient client = new SendGridClient(apiKey);
+            string senderEmail = _configuration["SendGrid:Sender_Email_Address"];
+            string senderName = _configuration["SendGrid:Sender_Name"];
+            EmailAddress sender = new EmailAddress(senderEmail, senderName);           
+            EmailAddress recipient = new EmailAddress(toEmail);
+            SendGridMessage message = MailHelper.CreateSingleEmail(sender, recipient, subject, content, content);
+            Response response = await client.SendEmailAsync(message);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new SendGridException($"Failed to send email to {toEmail}. Status Code: {response.StatusCode}");
+            }    
         }
     }
 }

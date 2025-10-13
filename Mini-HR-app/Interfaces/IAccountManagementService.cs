@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Mini_HR_app.Services
 {
-    public interface IAuthManagementService
+    public interface IAccountManagementService
     {
         Task<ServiceResponse<RegisterResponse, IEnumerable<IdentityError>>> RegisterUser(RegisterUserRequest registerUserRequest);
         Task<bool> ConfirmUserRequest(ConfirmUserRequest confirmUserRequest);

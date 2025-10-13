@@ -259,27 +259,6 @@ namespace Mini_HR_app.Data.Migrations
                     b.ToTable("Photos");
                 });
 
-            modelBuilder.Entity("Mini_HR_app.Models.AppUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<byte[]>("PasswordHash")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PasswordSalt")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AppUsers");
-                });
-
             modelBuilder.Entity("Mini_HR_app.Models.Company", b =>
                 {
                     b.Property<int>("Id")

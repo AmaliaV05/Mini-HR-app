@@ -10,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using Mini_HR_app.BusinessLogic.Interfaces;
 using Mini_HR_app.BusinessLogic.Services;
 using Mini_HR_app.Data;
+using Mini_HR_app.Data.Models.Constants.Utils;
 using Mini_HR_app.Extensions;
 using Mini_HR_app.Helpers;
 using Mini_HR_app.Services;
@@ -64,6 +65,12 @@ namespace Mini_HR_app
                     defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
 
                 options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+
+                options.AddPolicy("Admin_Manager", policy =>
+                    policy.RequireRole(UserRole.ADMIN, UserRole.MANAGER));
+
+                options.AddPolicy("Admin_Manager_Member", policy =>
+                    policy.RequireRole(UserRole.ADMIN, UserRole.MANAGER, UserRole.MEMBER));
             });
 
             services.AddControllers();
@@ -72,32 +79,44 @@ namespace Mini_HR_app
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "ToDo API",
-                    Description = "A simple example ASP.NET Core Web API",
-                    TermsOfService = new Uri("https://example.com/terms"),
-                    Contact = new OpenApiContact
+                    Title = "Mini HR application",
+                    Description = "Application used to manage employees' information for multiple companies"
+                });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",                    
+                    Description = "Enter JWT Bearer token"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
                     {
-                        Name = "Shayne Boyer",
-                        Email = string.Empty,
-                        Url = new Uri("https://twitter.com/spboyer"),
-                    },
-                    License = new OpenApiLicense
-                    {
-                        Name = "Use under LICX",
-                        Url = new Uri("https://example.com/license"),
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] { UserRole.ADMIN, UserRole.MANAGER, UserRole.MEMBER }
                     }
                 });
-                //c.UseInlineDefinitionsForEnums();
+                // FIXME: fix AllowAnonymousOperationFilter to exclude [AllowAnonymous] endpoints from requiring auth
+                
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
+                c.IncludeXmlComments(xmlPath);                
             });
 
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));         
 
             services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IAuthManagementService, AuthManagementService>();
+            services.AddScoped<IAccountManagementService, AccountManagementService>();
             services.AddScoped<ICompaniesService, CompaniesService>();
             services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IEmployeesService, EmployeesService>();
@@ -114,7 +133,7 @@ namespace Mini_HR_app
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Mini HR app v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mini HR app v1"));
             }
 
             app.UseCustomException();

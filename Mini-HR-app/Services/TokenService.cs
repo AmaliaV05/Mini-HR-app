@@ -35,8 +35,8 @@ namespace Mini_HR_app.Services
             }
 
             var claims = await GetClaims();
-            var tokenOptions = GenerateTokenOptions( claims);
-            
+            var tokenOptions = GenerateTokenOptions(claims);
+
             return tokenOptions;
         }
 
@@ -51,8 +51,9 @@ namespace Mini_HR_app.Services
         {
             var claims = new List<Claim>
             {
+                new(JwtRegisteredClaimNames.Sub, _user.Id),
+                new(JwtRegisteredClaimNames.Iat, DateTime.Now.ToLongDateString()),
                 new(ClaimTypes.Name, _user.UserName),
-                new(ClaimTypes.NameIdentifier, _user.Id),
                 new(ClaimTypes.Email, _user.Email)
             };
 

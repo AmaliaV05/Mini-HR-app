@@ -89,23 +89,23 @@ namespace Mini_HR_app.Services
                 .FirstAsync();
         }
 
-        public async Task<Company> GetEmployeeDetails(int idCompany, int idEmployee)
+        public async Task<Company>   GetEmployeeDetails(int idCompany, int idEmployee)
         {
             await CheckCompanyIsActive(idCompany);
 
-            var employee = await _context.Companies
+            var employeeExists = await EmployeeExists(idEmployee);
+
+            if (!employeeExists)
+            {
+                throw new GetEmployeeException($"Employee with id: {idEmployee} does not exist");
+            }
+
+            return await _context.Companies
                .Where(c => c.Id == idCompany)
                .Include(c => c.Employees.Where(e => e.Id == idEmployee))
                .ThenInclude(e => e.CompanyEmployees.Where(e => e.Status == true))
                .AsSplitQuery()
                .FirstOrDefaultAsync();
-
-            if (employee == null)
-            {
-                throw new GetEmployeeException($"Employee with id: {idEmployee} does not exist");
-            }
-
-            return employee;
         }
 
         public async Task<Employee> FindEmployeeId(Employee employee)
@@ -295,6 +295,11 @@ namespace Mini_HR_app.Services
             CreateAuditLog(AuditAction.Create, nameof(Employee), employee.Id);
 
             // FIXME: wrap in a database transaction to avoid saving audit log if creation fails
+        }
+
+        private async Task<bool> EmployeeExists(int idEmployee)
+        {
+            return await _context.Employees.AnyAsync(e => e.Id == idEmployee);
         }
 
         private void CreateAuditLog(string action, string entityType, int entityId, string changedFields = null)

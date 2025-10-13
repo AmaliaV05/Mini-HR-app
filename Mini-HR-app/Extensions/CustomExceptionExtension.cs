@@ -97,6 +97,11 @@ namespace Mini_HR_app.Extensions
                 _logger.LogError($"An invalid operation exception has been thrown: {ioEx}");
                 await HandleExceptionAsync(httpContext, ioEx);
             }
+            catch (SendGridException sgEx)
+            {
+                _logger.LogError($"A SendGrid exception has been thrown: {sgEx}");
+                await HandleExceptionAsync(httpContext, sgEx);
+            }
             catch (Exception ex)
             {
                 _logger.LogError($"Something went wrong: {ex}");
@@ -153,6 +158,9 @@ namespace Mini_HR_app.Extensions
                     break;
                 case InvalidOperationException:
                     msg = "Operation violation from the custom middleware";
+                    break;
+                case SendGridException:
+                    msg = "SendGrid operation violation from the custom middleware";
                     break;
                 default:
                     break;

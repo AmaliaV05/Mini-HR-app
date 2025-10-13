@@ -110,8 +110,8 @@ namespace Mini_HR_app.BusinessLogic.Services
 
         public async Task PostEmployeeContact(int idEmployee, Contact contact)
         {
-            var employee = await _context.Employees.
-                Where(e => e.Id == idEmployee)
+            var employee = await _context.Employees
+                .Where(e => e.Id == idEmployee)
                 .Include(e => e.Contacts)
                 .FirstOrDefaultAsync();
 
@@ -121,7 +121,7 @@ namespace Mini_HR_app.BusinessLogic.Services
             }
 
             employee.Contacts.Add(contact);
-            await SaveChangesAsync();           
+            await SaveChangesAsync();
 
             await _emailService.SendEmail(contact.Email, "Welcome", "<h2>" + employee.Name + " " + employee.Surname
                 + ", you are now officially part of our group at Maze!</h2>");

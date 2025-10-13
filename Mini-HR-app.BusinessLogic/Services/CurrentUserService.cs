@@ -2,6 +2,7 @@
 using Mini_HR_app.BusinessLogic.Interfaces;
 using Mini_HR_app.BusinessLogic.Models;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 
@@ -21,7 +22,7 @@ namespace Mini_HR_app.BusinessLogic.Services
             ClaimsPrincipal user = _httpContextAccessor.HttpContext.User;
             if (user?.Identity?.IsAuthenticated ?? false)
             {
-                return user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                return user.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             }
 
             return null;

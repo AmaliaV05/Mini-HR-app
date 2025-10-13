@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31624.102
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mini-HR-app", "Mini-HR-app.csproj", "{8DB43094-9ABC-46BC-B998-3CA9F61AE5C9}"
 EndProject
@@ -33,6 +33,10 @@ Global
 		{CE89E937-43D3-4C2B-842B-E922A0583DEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE89E937-43D3-4C2B-842B-E922A0583DEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE89E937-43D3-4C2B-842B-E922A0583DEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C178A42-187E-410F-8CF5-F211C550BD4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C178A42-187E-410F-8CF5-F211C550BD4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C178A42-187E-410F-8CF5-F211C550BD4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C178A42-187E-410F-8CF5-F211C550BD4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
